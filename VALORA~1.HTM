@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valoracion — Arturo Entrenamiento Personal</title>
+<style>
+:root {
+  --primary: #1a5276;
+  --primary-light: #2980b9;
+  --accent: #27ae60;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --border: #dfe6e9;
+  --part1: #1a5276;
+  --part2: #6c3483;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding-bottom: 120px;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  padding: 20px 16px;
+  text-align: center;
+}
+.header h1 { font-size: 20px; font-weight: 700; }
+.header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+/* Part dividers */
+.part-divider {
+  margin: 16px 12px 4px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.part-divider.part1 { background: linear-gradient(135deg, var(--part1), #2471a3); }
+.part-divider.part2 { background: linear-gradient(135deg, var(--part2), #8e44ad); }
+.part-divider .part-num {
+  background: rgba(255,255,255,0.25);
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.part-divider .part-desc {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.85;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.section {
+  margin: 8px 12px;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.section.p2 .section-header { background: var(--part2); }
+.section-header {
+  background: var(--primary);
+  color: white;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.section-header::after {
+  content: '\25BC';
+  font-size: 11px;
+  transition: transform 0.2s;
+}
+.section-header.closed::after { transform: rotate(-90deg); }
+.section-header .badge {
+  background: rgba(255,255,255,0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-right: 8px;
+}
+.section-body { padding: 16px; }
+.section-body.collapsed { display: none; }
+
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.field .hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 6px;
+}
+
+select, input[type="text"], input[type="number"], input[type="date"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+  color: var(--text);
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+textarea { resize: vertical; min-height: 60px; }
+select:focus, input:focus, textarea:focus {
+  border-color: var(--primary-light);
+  outline: none;
+}
+
+.row { display: flex; gap: 10px; }
+.row > .field { flex: 1; }
+
+.interpretation {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  display: none;
+}
+.interpretation.show { display: block; }
+.interpretation.good { background: #e8f8f0; border-left: 3px solid var(--accent); }
+.interpretation.warning { background: #fef9e7; border-left: 3px solid var(--warning); }
+.interpretation.alert { background: #fdedec; border-left: 3px solid var(--danger); }
+.interpretation .exercises {
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.pain-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pain-slider input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--accent), var(--warning), var(--danger));
+}
+.pain-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--primary);
+  cursor: pointer;
+}
+.pain-value {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.checkbox-group label.checked {
+  border-color: var(--primary);
+  background: #ebf5fb;
+}
+.checkbox-group input { display: none; }
+
+.patho-category { margin-bottom: 12px; }
+.patho-category-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--part2);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.results-panel {
+  margin: 12px;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+  display: none;
+}
+.results-panel.show { display: block; }
+.results-header {
+  background: var(--accent);
+  color: white;
+  padding: 16px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+.results-body { padding: 16px; }
+.result-category {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.result-category:last-child { border-bottom: none; }
+.result-category h3 {
+  font-size: 15px;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.exercise-card {
+  background: #ebf5fb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.exercise-card strong { color: var(--primary); }
+
+.btn-group {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 10px 12px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 100;
+}
+.btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 11px 8px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:active { background: var(--primary-light); }
+.btn-secondary { background: var(--accent); color: white; }
+.btn-secondary:active { opacity: 0.8; }
+.btn-csv { background: var(--warning); color: white; }
+.btn-csv:active { opacity: 0.8; }
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+.sub-label { font-size: 12px; color: var(--text-light); font-weight: 600; }
+
+/* RFM result bar */
+.rfm-bar {
+  margin-top: 10px;
+  height: 18px;
+  border-radius: 9px;
+  background: linear-gradient(to right, #3498db 0%, #27ae60 20%, #27ae60 40%, #f1c40f 60%, #e67e22 75%, #e74c3c 100%);
+  position: relative;
+}
+.rfm-marker {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 26px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: left 0.3s;
+}
+.rfm-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Sistema de Valoracion</h1>
+  <p>Arturo — Entrenamiento Personal</p>
+</div>
+
+<!-- ============================================================ -->
+<!--  PARTE 1 — VALORACION BIOMECANICA (en sesion)                -->
+<!-- ============================================================ -->
+<div class="part-divider part1">
+  <span class="part-num">PARTE 1</span>
+  Valoracion Biomecanica
+  <span class="part-desc">— en sesion</span>
+</div>
+
+<!-- Datos minimos para la sesion -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    Datos de la sesion <span class="badge">INICIO</span>
+  </div>
+  <div class="section-body">
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="clientName" placeholder="Nombre del cliente">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="evalDate">
+      </div>
+      <div class="field">
+        <label>Evaluacion n.</label>
+        <select id="evalNumber">
+          <option value="1">1a (Inicial)</option>
+          <option value="2">2a</option>
+          <option value="3">3a</option>
+          <option value="4">4a</option>
+          <option value="5">5a+</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ISA -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    ISA (Angulo Infraesternal) <span class="badge">PASO 1</span>
+  </div>
+  <div class="section-body">
+    <div class="field">
+      <label>Resultado ISA</label>
+      <div class="hint">Supino, pulgares en xifoides siguiendo costillas. Brazos elevados hasta que arrastren costillas. Pedir que respire.</div>
+      <select id="isa" onchange="updateISA()">
+        <option value="">— Seleccionar —</option>
+        <option value="estrecho">Estrecho (< 90°) — Necesita expansion, RE</option>
+        <option value="ancho">Ancho (> 90°) — Necesita compresion, RI</option>
+        <option value="asimetrico">Asimetrico — Un lado diferente del otro</option>
+      </select>
+      <div id="isa-interp" class="interpretation"></div>
+    </div>
+    <div class="row" id="isaAsimRow" style="display:none">
+      <div class="field">
+        <label class="sub-label">Lado izquierdo</label>
+        <select id="isaIzq">
+          <option value="">—</option>
+          <option value="estrecho">Estrecho</option>
+          <option value="ancho">Ancho</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="sub-label">Lado derecho</label>
+        <select id="isaDer">
+          <option value="">—</option>
+          <option value="estrecho">Estrecho</option>
+          <option value="ancho">Ancho</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Grados aproximados</label>
+      <div class="hint">Referencia. Puede que no se use directamente en ejercicios.</div>
+      <input type="number" id="isaGrados" placeholder="Ej: 95" min="60" max="140">
+    </div>
+  </div>
+</div>
+
+<!-- Tren Inferior -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    Tren Inferior <span class="badge">PASO 2</span>
+  </div>
+  <div class="section-body">
+    <div class="field">
+      <label>Toe Touch</label>
+      <div class="hint">De pie, pies juntos, rodillas rectas. Grabar en camara lenta.</div>
+      <select id="toeTouch" onchange="updateTest('toeTouch')">
+        <option value="">— Seleccionar —</option>
+        <option value="rodillas">Llega a las rodillas</option>
+        <option value="espinilla">Llega a media espinilla</option>
+        <option value="dedos">Toca los dedos / pies</option>
+        <option value="palmas">Toca el suelo con las palmas</option>
+      </select>
+      <div id="toeTouch-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Sentadilla profunda</label>
+      <div class="hint">Pies anchura de hombros. Bajar lo maximo posible. Grabar frontal + lateral.</div>
+      <select id="squat" onchange="updateTest('squat')">
+        <option value="">— Seleccionar —</option>
+        <option value="menos60">Apenas baja (< 60°)</option>
+        <option value="60-100">Llega a paralelo (60-100°)</option>
+        <option value="mas100">Profundo con butt wink (> 100°)</option>
+        <option value="completo">Completo sin compensacion</option>
+      </select>
+      <div id="squat-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Observaciones sentadilla</label>
+      <div class="checkbox-group">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="valgo"> Valgo rodillas</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="varo"> Varo rodillas</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hipshift"> Hip shift</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="talones"> Talones se despegan</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="ribflare"> Rib flare</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>ASLR (Straight Leg Raise)</label>
+      <div class="hint">Supino, piernas estiradas. Elevar pierna recta.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="slrIzq" onchange="updateTest('slr')">
+            <option value="">—</option>
+            <option value="0-50">0-50°</option>
+            <option value="50-60">50-60°</option>
+            <option value="70-80">70-80° (objetivo)</option>
+            <option value="90+">90°+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="slrDer" onchange="updateTest('slr')">
+            <option value="">—</option>
+            <option value="0-50">0-50°</option>
+            <option value="50-60">50-60°</option>
+            <option value="70-80">70-80° (objetivo)</option>
+            <option value="90+">90°+</option>
+          </select>
+        </div>
+      </div>
+      <div id="slr-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Supine Knee to Chest</label>
+      <div class="hint">Supino. Llevar rodilla al pecho.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="ktcIzq" onchange="updateTest('ktc')">
+            <option value="">—</option>
+            <option value="60-90">60-90°</option>
+            <option value="90-110">90-110°</option>
+            <option value="120">~120° (objetivo)</option>
+            <option value="130+">130°+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="ktcDer" onchange="updateTest('ktc')">
+            <option value="">—</option>
+            <option value="60-90">60-90°</option>
+            <option value="90-110">90-110°</option>
+            <option value="120">~120° (objetivo)</option>
+            <option value="130+">130°+</option>
+          </select>
+        </div>
+      </div>
+      <div id="ktc-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Test de Ober</label>
+      <div class="hint">Lateral. Pierna inferior flexionada. Extiende y abduce pierna superior, suelta.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="oberIzq" onchange="updateTest('ober')">
+            <option value="">—</option>
+            <option value="suspenso">Suspenso (espalda se arquea)</option>
+            <option value="parcial">Parcial (mitad de camino)</option>
+            <option value="aprobado">Aprobado (llega a la camilla)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="oberDer" onchange="updateTest('ober')">
+            <option value="">—</option>
+            <option value="suspenso">Suspenso</option>
+            <option value="parcial">Parcial</option>
+            <option value="aprobado">Aprobado</option>
+          </select>
+        </div>
+      </div>
+      <div id="ober-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Rotaciones femorales (opcional)</label>
+      <div class="hint">Prono, rodilla 90°. RI objetivo ~40°, RE objetivo ~45°.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">RI Izq</label>
+          <input type="number" id="femRIIzq" placeholder="°" min="0" max="90">
+        </div>
+        <div class="field">
+          <label class="sub-label">RI Der</label>
+          <input type="number" id="femRIDer" placeholder="°" min="0" max="90">
+        </div>
+        <div class="field">
+          <label class="sub-label">RE Izq</label>
+          <input type="number" id="femREIzq" placeholder="°" min="0" max="90">
+        </div>
+        <div class="field">
+          <label class="sub-label">RE Der</label>
+          <input type="number" id="femREDer" placeholder="°" min="0" max="90">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tren Superior -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    Tren Superior <span class="badge">PASO 3</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <label>Rotacion Interna de Hombro</label>
+      <div class="hint">Supino, brazo 90° abd, codo 90°. Rotar antebrazo hacia suelo. Objetivo: 70°.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="shIRIzq" onchange="updateTest('shIR')">
+            <option value="">—</option>
+            <option value="menos70">< 70°</option>
+            <option value="70+">70°+ (objetivo)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="shIRDer" onchange="updateTest('shIR')">
+            <option value="">—</option>
+            <option value="menos70">< 70°</option>
+            <option value="70+">70°+ (objetivo)</option>
+          </select>
+        </div>
+      </div>
+      <div id="shIR-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Rotacion Externa de Hombro</label>
+      <div class="hint">Igual que IR pero rotando hacia techo/atras. Objetivo: 90°.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="shERIzq" onchange="updateTest('shER')">
+            <option value="">—</option>
+            <option value="menos90">< 90°</option>
+            <option value="90+">90°+ (objetivo)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="shERDer" onchange="updateTest('shER')">
+            <option value="">—</option>
+            <option value="menos90">< 90°</option>
+            <option value="90+">90°+ (objetivo)</option>
+          </select>
+        </div>
+      </div>
+      <div id="shER-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Flexion de Hombro</label>
+      <div class="hint">Supino, brazo en flexion completa hacia cabeza, espalda pegada al suelo.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">Izquierda</label>
+          <select id="shFlexIzq" onchange="updateTest('shFlex')">
+            <option value="">—</option>
+            <option value="0-90">0-90°</option>
+            <option value="90-120">90-120°</option>
+            <option value="120-160">120-160°</option>
+            <option value="160+">160-180° (objetivo)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="sub-label">Derecha</label>
+          <select id="shFlexDer" onchange="updateTest('shFlex')">
+            <option value="">—</option>
+            <option value="0-90">0-90°</option>
+            <option value="90-120">90-120°</option>
+            <option value="120-160">120-160°</option>
+            <option value="160+">160-180° (objetivo)</option>
+          </select>
+        </div>
+      </div>
+      <div id="shFlex-interp" class="interpretation"></div>
+    </div>
+    <div class="field">
+      <label>Abduccion / Aduccion Hombro</label>
+      <div class="hint">Supino. ABD: brazo hacia fuera. ADD: brazo cruzado. Objetivo: 30° en ambos.</div>
+      <div class="row">
+        <div class="field">
+          <label class="sub-label">ABD Izq</label>
+          <select id="shABDIzq"><option value="">—</option><option value="menos30">< 30°</option><option value="30+">30°+</option></select>
+        </div>
+        <div class="field">
+          <label class="sub-label">ABD Der</label>
+          <select id="shABDDer"><option value="">—</option><option value="menos30">< 30°</option><option value="30+">30°+</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="field">
+          <label class="sub-label">ADD Izq</label>
+          <select id="shADDIzq"><option value="">—</option><option value="menos30">< 30°</option><option value="30+">30°+</option></select>
+        </div>
+        <div class="field">
+          <label class="sub-label">ADD Der</label>
+          <select id="shADDDer"><option value="">—</option><option value="menos30">< 30°</option><option value="30+">30°+</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mapa de Dolor -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    Mapa de Dolor <span class="badge">PASO 4</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <label>Espalda baja</label>
+      <div class="pain-slider">
+        <span style="font-size:12px">0</span>
+        <input type="range" id="painLumbar" min="0" max="10" value="0" oninput="updatePain(this)">
+        <span class="pain-value" id="painLumbar-val">0</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Dorsal / Toracica</label>
+      <div class="pain-slider">
+        <span style="font-size:12px">0</span>
+        <input type="range" id="painDorsal" min="0" max="10" value="0" oninput="updatePain(this)">
+        <span class="pain-value" id="painDorsal-val">0</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Rodilla Izq</label>
+        <div class="pain-slider"><input type="range" id="painRodIzq" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painRodIzq-val">0</span></div>
+      </div>
+      <div class="field">
+        <label>Rodilla Der</label>
+        <div class="pain-slider"><input type="range" id="painRodDer" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painRodDer-val">0</span></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Hombro Izq</label>
+        <div class="pain-slider"><input type="range" id="painHomIzq" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painHomIzq-val">0</span></div>
+      </div>
+      <div class="field">
+        <label>Hombro Der</label>
+        <div class="pain-slider"><input type="range" id="painHomDer" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painHomDer-val">0</span></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Cervical</label>
+      <div class="pain-slider">
+        <span style="font-size:12px">0</span>
+        <input type="range" id="painCervical" min="0" max="10" value="0" oninput="updatePain(this)">
+        <span class="pain-value" id="painCervical-val">0</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Cadera Izq</label>
+        <div class="pain-slider"><input type="range" id="painCadIzq" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painCadIzq-val">0</span></div>
+      </div>
+      <div class="field">
+        <label>Cadera Der</label>
+        <div class="pain-slider"><input type="range" id="painCadDer" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painCadDer-val">0</span></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Tobillo Izq</label>
+        <div class="pain-slider"><input type="range" id="painTobIzq" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painTobIzq-val">0</span></div>
+      </div>
+      <div class="field">
+        <label>Tobillo Der</label>
+        <div class="pain-slider"><input type="range" id="painTobDer" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painTobDer-val">0</span></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Otra zona</label>
+      <div class="row">
+        <div class="field"><input type="text" id="painOtraZona" placeholder="Zona..."></div>
+        <div class="field">
+          <div class="pain-slider"><input type="range" id="painOtra" min="0" max="10" value="0" oninput="updatePain(this)"><span class="pain-value" id="painOtra-val">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  PARTE 2 — FICHA DEL CLIENTE (antes/despues de sesion)       -->
+<!-- ============================================================ -->
+<div class="part-divider part2">
+  <span class="part-num">PARTE 2</span>
+  Ficha del Cliente
+  <span class="part-desc">— antes o despues de sesion</span>
+</div>
+
+<!-- Datos personales -->
+<div class="section p2">
+  <div class="section-header" onclick="toggleSection(this)">
+    Datos Personales <span class="badge">FICHA</span>
+  </div>
+  <div class="section-body">
+    <div class="row">
+      <div class="field">
+        <label>Edad</label>
+        <input type="number" id="edad" placeholder="Edad" min="10" max="100">
+      </div>
+      <div class="field">
+        <label>Sexo</label>
+        <select id="sexo">
+          <option value="">—</option>
+          <option value="M">Hombre</option>
+          <option value="F">Mujer</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Objetivo principal</label>
+      <select id="objetivo">
+        <option value="">— Seleccionar —</option>
+        <option value="dolor">Reducir dolor / rehabilitacion</option>
+        <option value="movilidad">Mejorar movilidad</option>
+        <option value="estetico">Objetivo estetico (perder grasa / tonificar)</option>
+        <option value="fuerza">Ganar fuerza</option>
+        <option value="rendimiento">Rendimiento deportivo</option>
+        <option value="general">Sentirme mejor en general</option>
+        <option value="mixto">Combinacion (especificar en notas)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nivel de actividad previa</label>
+      <select id="actividadPrevia">
+        <option value="">— Seleccionar —</option>
+        <option value="sedentario">Sedentario (no hace ejercicio)</option>
+        <option value="ligero">Ligero (camina, algo de movimiento)</option>
+        <option value="moderado">Moderado (2-3 dias/semana)</option>
+        <option value="activo">Activo (4-5 dias/semana)</option>
+        <option value="muy_activo">Muy activo (6-7 dias, deportista)</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Calidad de sueno (1-10)</label>
+        <div class="hint">1 = duermo genial, 10 = duermo fatal</div>
+        <div class="pain-slider">
+          <span style="font-size:12px">1</span>
+          <input type="range" id="sueno" min="1" max="10" value="5" oninput="document.getElementById('sueno-val').textContent=this.value">
+          <span class="pain-value" id="sueno-val">5</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Estres percibido (1-10)</label>
+        <div class="hint">1 = nada, 10 = maximo</div>
+        <div class="pain-slider">
+          <span style="font-size:12px">1</span>
+          <input type="range" id="estres" min="1" max="10" value="5" oninput="document.getElementById('estres-val').textContent=this.value">
+          <span class="pain-value" id="estres-val">5</span>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Horas de sueno por noche</label>
+      <div class="row">
+        <div class="field">
+          <input type="number" id="horasSueno" placeholder="Ej: 7" min="2" max="14" step="0.5">
+        </div>
+        <div class="field">
+          <label class="sub-label">Despertares nocturnos</label>
+          <select id="despertares">
+            <option value="">—</option>
+            <option value="0">Ninguno</option>
+            <option value="1">1 vez</option>
+            <option value="2">2 veces</option>
+            <option value="3+">3 o mas</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Patologias -->
+<div class="section p2">
+  <div class="section-header" onclick="toggleSection(this)">
+    Patologias <span class="badge">DEL CUESTIONARIO</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <div class="hint">Marca las que el cliente haya reportado en el cuestionario previo o que conozcas. Asi te ahorras preguntar en sesion.</div>
+    </div>
+
+    <div class="patho-category">
+      <div class="patho-category-title">Hombro</div>
+      <div class="checkbox-group" id="pathHombro">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_manguito"> Tendinopatia manguito</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="impingement_subacromial"> Impingement subacromial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="inestabilidad_glenohumeral"> Inestabilidad glenohumeral</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="capsulitis_adhesiva"> Capsulitis adhesiva</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinitis_bicipital"> Tendinitis bicipital</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="bursitis_subacromial"> Bursitis subacromial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="rotura_manguito"> Rotura parcial manguito</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="artrosis_ac"> Artrosis acromioclavicular</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="slap"> Lesion SLAP</label>
+      </div>
+    </div>
+    <div class="patho-category">
+      <div class="patho-category-title">Rodilla</div>
+      <div class="checkbox-group" id="pathRodilla">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="condromalacia"> Condromalacia rotuliana</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="menisco"> Meniscopatia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_rotuliana"> Tendinopatia rotuliana</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="gonartrosis"> Gonartrosis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="cintilla_iliotibial"> Sindrome cintilla iliotibial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="lca_operado"> LCA operado</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="lca_no_operado"> LCA no operado / parcial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="bursitis_rotuliana"> Bursitis rotuliana</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="baker"> Quiste de Baker</label>
+      </div>
+    </div>
+    <div class="patho-category">
+      <div class="patho-category-title">Espalda</div>
+      <div class="checkbox-group" id="pathEspalda">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="lumbalgia"> Lumbalgia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hernia_discal_lumbar"> Hernia discal lumbar</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="protusion_discal"> Protusion discal</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="estenosis_lumbar"> Estenosis lumbar</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="ciatica"> Ciatica</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="espondilolistesis"> Espondilolistesis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="espondilosis"> Espondilosis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="dorsalgia"> Dorsalgia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="escoliosis"> Escoliosis</label>
+      </div>
+    </div>
+    <div class="patho-category">
+      <div class="patho-category-title">Cervical</div>
+      <div class="checkbox-group" id="pathCervical">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="cervicalgia"> Cervicalgia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hernia_cervical"> Hernia discal cervical</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="artrosis_cervical"> Artrosis cervical</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="torticulis"> Torticulis recurrente</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="cefalea_tensional"> Cefalea tensional</label>
+      </div>
+    </div>
+    <div class="patho-category">
+      <div class="patho-category-title">Cadera</div>
+      <div class="checkbox-group" id="pathCadera">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="artrosis_cadera"> Artrosis de cadera</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="bursitis_trocanterica"> Bursitis trocanterica</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="impingement_femoroac"> Impingement femoroacetabular</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_glutea"> Tendinopatia glutea</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="piriforme"> Sindrome piriforme</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="protesis_cadera"> Protesis de cadera</label>
+      </div>
+    </div>
+    <div class="patho-category">
+      <div class="patho-category-title">Otros</div>
+      <div class="checkbox-group" id="pathOtros">
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="fascitis_plantar"> Fascitis plantar</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="epicondilitis"> Epicondilitis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="epitrocleitis"> Epitrocleitis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="fibromialgia"> Fibromialgia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="osteoporosis"> Osteoporosis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="diabetes"> Diabetes</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hipertension"> Hipertension</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="protesis_rodilla"> Protesis de rodilla</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="esguince_tobillo_recurrente"> Esguince tobillo recurrente</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="sindrome_tunel_carpiano"> S. tunel carpiano</label>
+      </div>
+    </div>
+    <div class="field" style="margin-top: 12px">
+      <label>Otra patologia</label>
+      <input type="text" id="otraPatologia" placeholder="Especificar si no esta en la lista...">
+    </div>
+  </div>
+</div>
+
+<!-- Medidas antropometricas -->
+<div class="section p2">
+  <div class="section-header" onclick="toggleSection(this)">
+    Medidas Antropometricas <span class="badge">OPCIONAL</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <div class="hint">Segun objetivo del cliente. Para calcular RFM necesitas altura + cintura + sexo.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Peso (kg)</label>
+        <input type="number" id="peso" placeholder="kg" min="30" max="250" step="0.1">
+      </div>
+      <div class="field">
+        <label>Altura (cm)</label>
+        <input type="number" id="altura" placeholder="cm" min="100" max="220" onchange="calcRFM()">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Cintura (cm)</label>
+        <div class="hint">A la altura del ombligo</div>
+        <input type="number" id="cintura" placeholder="cm" min="40" max="180" step="0.5" onchange="calcRFM()">
+      </div>
+      <div class="field">
+        <label>Cadera (cm)</label>
+        <div class="hint">Parte mas ancha</div>
+        <input type="number" id="cadera" placeholder="cm" min="50" max="180" step="0.5" onchange="calcRFM()">
+      </div>
+    </div>
+
+    <!-- RFM result -->
+    <div id="rfm-result" class="interpretation" style="margin-bottom:16px"></div>
+
+    <div class="row">
+      <div class="field">
+        <label>Brazo Izq (cm)</label>
+        <input type="number" id="brazoIzq" placeholder="cm" min="15" max="60" step="0.5">
+      </div>
+      <div class="field">
+        <label>Brazo Der (cm)</label>
+        <input type="number" id="brazoDer" placeholder="cm" min="15" max="60" step="0.5">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Muslo Izq (cm)</label>
+        <input type="number" id="musloIzq" placeholder="cm" min="30" max="90" step="0.5">
+      </div>
+      <div class="field">
+        <label>Muslo Der (cm)</label>
+        <input type="number" id="musloDer" placeholder="cm" min="30" max="90" step="0.5">
+      </div>
+    </div>
+
+    <!-- Plicometria futura -->
+    <div class="field" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border)">
+      <label>Plicometria (mm) — futuro</label>
+      <div class="hint">Si dispones de plicometro. Dejado aqui para cuando lo necesites.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="sub-label">Abdominal</label>
+        <input type="number" id="plicAbdominal" placeholder="mm" min="2" max="60" step="0.5">
+      </div>
+      <div class="field">
+        <label class="sub-label">Triceps</label>
+        <input type="number" id="plicTriceps" placeholder="mm" min="2" max="60" step="0.5">
+      </div>
+      <div class="field">
+        <label class="sub-label">Suprailiaco</label>
+        <input type="number" id="plicSuprailiaco" placeholder="mm" min="2" max="60" step="0.5">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tests opcionales / Rendimiento -->
+<div class="section p2">
+  <div class="section-header" onclick="toggleSection(this)">
+    Tests Opcionales / Rendimiento <span class="badge">SEGUN PERFIL</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <div class="hint">Rellena solo lo que aplique segun el perfil del cliente.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Resp/min</label>
+        <div class="hint">Reposo, sentado. Cuenta subidas del pecho en 1 min.</div>
+        <input type="number" id="respMin" placeholder="12-20" min="5" max="40" oninput="evalResp()">
+        <div class="interpretation" id="resp-interp"></div>
+      </div>
+      <div class="field">
+        <label>Apnea post-exh (s)</label>
+        <div class="hint">Exhala normal y aguanta sin respirar.</div>
+        <input type="number" id="apnea" placeholder="segundos" min="0" max="120" oninput="evalApnea()">
+        <div class="interpretation" id="apnea-interp"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Grip Izq (kg)</label>
+        <div class="hint">Dinamometro de mano.</div>
+        <input type="number" id="gripIzq" placeholder="kg" min="0" max="100" oninput="evalGrip()">
+      </div>
+      <div class="field">
+        <label>Grip Der (kg)</label>
+        <input type="number" id="gripDer" placeholder="kg" min="0" max="100" oninput="evalGrip()">
+      </div>
+    </div>
+    <div class="interpretation" id="grip-interp" style="margin:-8px 0 16px"></div>
+    <div class="row">
+      <div class="field">
+        <label>Flexiones max</label>
+        <input type="number" id="flexiones" placeholder="n." min="0" max="200">
+      </div>
+      <div class="field">
+        <label>Plancha (seg)</label>
+        <input type="number" id="plancha" placeholder="seg" min="0" max="600">
+      </div>
+    </div>
+    <div class="field" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border)">
+      <label>CMJ — MyJump (rendimiento)</label>
+      <div class="hint">Solo para clientes de rendimiento. Usar app MyJump.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="sub-label">Altura CMJ (cm)</label>
+        <input type="number" id="cmjAltura" placeholder="cm" min="5" max="80" step="0.1">
+      </div>
+      <div class="field">
+        <label class="sub-label">Tiempo vuelo (ms)</label>
+        <input type="number" id="cmjTiempo" placeholder="ms" min="100" max="1000">
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Observaciones generales</label>
+      <textarea id="observaciones" placeholder="Notas libres sobre la evaluacion..." rows="3"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Notas de sesion -->
+<div class="section p2">
+  <div class="section-header" onclick="toggleSection(this)">
+    Notas de Sesion / Sensaciones <span class="badge">DIARIO</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="field">
+      <div class="hint">Apunta sensaciones del cliente, molestias, cambios que haces. Esto alimenta el informe de progreso.</div>
+    </div>
+    <div class="field">
+      <label>Fecha de la nota</label>
+      <input type="date" id="notaFecha">
+    </div>
+    <div class="field">
+      <label>Sensaciones / comentarios del cliente</label>
+      <textarea id="notaTexto" placeholder="Ej: 'Hoy le molestaba la rodilla izquierda al bajar escaleras...'" rows="3"></textarea>
+    </div>
+    <div class="field">
+      <label>Cambios realizados en la sesion</label>
+      <textarea id="notaCambios" placeholder="Ej: 'Cambiado sentadilla goblet por sentadilla a caja alta...'" rows="3"></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-top:8px; background:var(--part2)" onclick="addNota()">Guardar nota</button>
+    <div id="notasGuardadas" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- Results Panel -->
+<div class="results-panel" id="resultsPanel">
+  <div class="results-header">Resumen y Ejercicios Recomendados</div>
+  <div class="results-body" id="resultsBody"></div>
+</div>
+
+<!-- Bottom Buttons -->
+<div class="btn-group">
+  <button class="btn btn-primary" onclick="generateResults()">Ver Resultados</button>
+  <button class="btn btn-secondary" onclick="copyAll()">Copiar Todo</button>
+  <button class="btn btn-csv" onclick="exportCSV()">Exportar CSV</button>
+  <button class="btn" style="background:#6b1c2a;color:#fff;border:none;" onclick="copyParaSheet()">Copiar para Sheet</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('evalDate').valueAsDate = new Date();
+document.getElementById('notaFecha').valueAsDate = new Date();
+let notas = [];
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+  header.classList.toggle('closed');
+}
+
+function toggleCheck(label) {
+  const cb = label.querySelector('input');
+  cb.checked = !cb.checked;
+  label.classList.toggle('checked', cb.checked);
+}
+
+function updatePain(slider) {
+  const val = document.getElementById(slider.id + '-val');
+  val.textContent = slider.value;
+  const v = parseInt(slider.value);
+  if (v === 0) val.style.color = 'var(--accent)';
+  else if (v <= 3) val.style.color = 'var(--text)';
+  else if (v <= 6) val.style.color = 'var(--warning)';
+  else val.style.color = 'var(--danger)';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function getISA() { return document.getElementById('isa').value; }
+
+function updateISA() {
+  const v = getISA();
+  const el = document.getElementById('isa-interp');
+  document.getElementById('isaAsimRow').style.display = v === 'asimetrico' ? 'flex' : 'none';
+  if (!v) { el.classList.remove('show'); return; }
+  const data = {
+    estrecho: { cls: 'warning', text: 'ISA Estrecho: Necesita expansion y RE. Exhalar "empanando el cristal". Facilita extension, aduccion, pronacion, dorsiflexion. Le cuesta flexion, abduccion, supinacion.' },
+    ancho: { cls: 'warning', text: 'ISA Ancho: Necesita compresion y RI. Exhalar con "labios fruncidos". Facilita flexion, abduccion, supinacion, flexion plantar. Le cuesta extension, aduccion, pronacion.' },
+    asimetrico: { cls: 'alert', text: 'ISA Asimetrico: Un lado diferente del otro. Selecciona abajo cual es estrecho y cual ancho. Priorizar trabajo unilateral y correcciones de asimetria. Patron tipico AIC.' }
+  };
+  el.className = 'interpretation show ' + data[v].cls;
+  el.innerHTML = data[v].text;
+}
+
+function getEffectiveISA() {
+  const v = getISA();
+  if (v === 'asimetrico') {
+    const izq = document.getElementById('isaIzq').value;
+    const der = document.getElementById('isaDer').value;
+    if (izq === 'ancho' || der === 'ancho') return 'ancho';
+    return 'estrecho';
+  }
+  return v || 'estrecho';
+}
+
+// ===== TESTS OPCIONALES - EVALUACION EN VIVO =====
+function evalResp() {
+  const v = parseInt(document.getElementById('respMin').value);
+  const el = document.getElementById('resp-interp');
+  if (!v) { el.classList.remove('show'); return; }
+  let cls, text;
+  if (v < 12) { cls = 'warning'; text = 'Resp ' + v + '/min — BAJA. Puede indicar respiracion superficial o compensada. Revisar patron respiratorio.'; }
+  else if (v <= 20) { cls = 'good'; text = 'Resp ' + v + '/min — Normal. Rango optimo en reposo (12-20/min).'; }
+  else { cls = 'alert'; text = 'Resp ' + v + '/min — ALTA. Posible hiperventilacion o estres. Trabajar respiracion diafragmatica y control de ritmo.'; }
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = text;
+}
+
+function evalApnea() {
+  const v = parseInt(document.getElementById('apnea').value);
+  const el = document.getElementById('apnea-interp');
+  if (!v) { el.classList.remove('show'); return; }
+  let cls, text;
+  if (v < 20) { cls = 'alert'; text = 'Apnea ' + v + 's — BAJA. Tolerancia al CO2 reducida. Indica posible disfuncion respiratoria. Priorizar ejercicios de respiracion nasal y control de CO2.'; }
+  else if (v <= 40) { cls = 'good'; text = 'Apnea ' + v + 's — Normal. Buena tolerancia al CO2 (rango 20-40s).'; }
+  else { cls = 'good'; text = 'Apnea ' + v + 's — MUY BUENA. Excelente control respiratorio y tolerancia al CO2 (>40s).'; }
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = text;
+}
+
+function evalGrip() {
+  const gi = document.getElementById('gripIzq').value;
+  const gd = document.getElementById('gripDer').value;
+  const el = document.getElementById('grip-interp');
+  if (!gi && !gd) { el.classList.remove('show'); return; }
+  const sexo = document.getElementById('sexo').value;
+  const ref = sexo === 'Mujer' ? {bajo:20, normal:30, label:'Mujer'} : {bajo:30, normal:40, label:'Hombre'};
+  function evalOne(v) {
+    if (!v) return {txt:'-', cls:'normal'};
+    v = parseInt(v);
+    if (v < ref.bajo) return {txt:v+'kg BAJO', cls:'bad'};
+    if (v < ref.normal) return {txt:v+'kg normal', cls:'ok'};
+    return {txt:v+'kg BUENO', cls:'good'};
+  }
+  const li = evalOne(gi), ld = evalOne(gd);
+  let cls = 'good';
+  if (li.cls === 'bad' || ld.cls === 'bad') cls = 'alert';
+  else if (li.cls === 'ok' || ld.cls === 'ok') cls = 'warning';
+  let text = 'Grip (' + ref.label + ') — Izq: ' + li.txt + ' | Der: ' + ld.txt;
+  text += ' (Ref: <' + ref.bajo + ' bajo, ' + ref.bajo + '-' + ref.normal + ' normal, >' + ref.normal + ' bueno)';
+  // Asymmetry check
+  if (gi && gd) {
+    const diff = Math.abs(parseInt(gi) - parseInt(gd));
+    const avg = (parseInt(gi) + parseInt(gd)) / 2;
+    if (diff > avg * 0.1) text += '. Asimetria de ' + diff + 'kg entre manos.';
+  }
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = text;
+}
+
+// ===== RFM CALCULATION =====
+function calcRFM() {
+  const sexo = document.getElementById('sexo').value;
+  const altura = parseFloat(document.getElementById('altura').value);
+  const cintura = parseFloat(document.getElementById('cintura').value);
+  const cadera = parseFloat(document.getElementById('cadera').value);
+  const el = document.getElementById('rfm-result');
+
+  if (!sexo || !altura || !cintura) {
+    el.classList.remove('show');
+    return;
+  }
+
+  // RFM = 64 - (20 x altura_m / cintura_m) for men
+  // RFM = 76 - (20 x altura_m / cintura_m) for women
+  const altM = altura / 100;
+  const cinM = cintura / 100;
+  let rfm;
+  if (sexo === 'M') {
+    rfm = 64 - (20 * altM / cinM);
+  } else {
+    rfm = 76 - (20 * altM / cinM);
+  }
+  rfm = Math.max(3, Math.min(50, rfm));
+
+  // Classify
+  let category, cls;
+  if (sexo === 'M') {
+    if (rfm < 6) { category = 'Grasa esencial (<6%)'; cls = 'warning'; }
+    else if (rfm < 14) { category = 'Atletico (6-13%)'; cls = 'good'; }
+    else if (rfm < 18) { category = 'En forma (14-17%)'; cls = 'good'; }
+    else if (rfm < 25) { category = 'Saludable (18-24%)'; cls = 'good'; }
+    else if (rfm < 30) { category = 'Sobrepeso (25-29%)'; cls = 'warning'; }
+    else { category = 'Obesidad (30%+)'; cls = 'alert'; }
+  } else {
+    if (rfm < 14) { category = 'Grasa esencial (<14%)'; cls = 'warning'; }
+    else if (rfm < 21) { category = 'Atletica (14-20%)'; cls = 'good'; }
+    else if (rfm < 25) { category = 'En forma (21-24%)'; cls = 'good'; }
+    else if (rfm < 32) { category = 'Saludable (25-31%)'; cls = 'good'; }
+    else if (rfm < 37) { category = 'Sobrepeso (32-36%)'; cls = 'warning'; }
+    else { category = 'Obesidad (37%+)'; cls = 'alert'; }
+  }
+
+  // Waist health
+  let waistMsg = '';
+  if (sexo === 'M') {
+    if (cintura < 94) waistMsg = 'Cintura saludable (<94cm)';
+    else if (cintura < 102) waistMsg = 'Cintura: riesgo aumentado (94-102cm)';
+    else waistMsg = 'Cintura: riesgo alto (>102cm)';
+  } else {
+    if (cintura < 80) waistMsg = 'Cintura saludable (<80cm)';
+    else if (cintura < 88) waistMsg = 'Cintura: riesgo aumentado (80-88cm)';
+    else waistMsg = 'Cintura: riesgo alto (>88cm)';
+  }
+
+  // ICC (waist-to-hip)
+  let iccMsg = '';
+  if (cadera) {
+    const icc = cintura / cadera;
+    if (sexo === 'M') {
+      if (icc < 0.90) iccMsg = 'ICC: ' + icc.toFixed(2) + ' (bajo riesgo, <0.90)';
+      else if (icc < 1.0) iccMsg = 'ICC: ' + icc.toFixed(2) + ' (riesgo moderado, 0.90-0.99)';
+      else iccMsg = 'ICC: ' + icc.toFixed(2) + ' (riesgo alto, >=1.0)';
+    } else {
+      if (icc < 0.80) iccMsg = 'ICC: ' + icc.toFixed(2) + ' (bajo riesgo, <0.80)';
+      else if (icc < 0.85) iccMsg = 'ICC: ' + icc.toFixed(2) + ' (riesgo moderado, 0.80-0.84)';
+      else iccMsg = 'ICC: ' + icc.toFixed(2) + ' (riesgo alto, >=0.85)';
+    }
+  }
+
+  // RFM bar position (map rfm to 0-100%)
+  const minRFM = sexo === 'M' ? 3 : 10;
+  const maxRFM = sexo === 'M' ? 40 : 45;
+  const pct = Math.max(0, Math.min(100, ((rfm - minRFM) / (maxRFM - minRFM)) * 100));
+
+  let html = '<strong>RFM (Relative Fat Mass): ' + rfm.toFixed(1) + '% — ' + category + '</strong>';
+  html += '<div class="rfm-bar"><div class="rfm-marker" style="left:' + pct + '%"></div></div>';
+  if (sexo === 'M') {
+    html += '<div class="rfm-labels"><span>Esencial</span><span>Atletico</span><span>En forma</span><span>Saludable</span><span>Sobrepeso</span><span>Obesidad</span></div>';
+  } else {
+    html += '<div class="rfm-labels"><span>Esencial</span><span>Atletica</span><span>En forma</span><span>Saludable</span><span>Sobrepeso</span><span>Obesidad</span></div>';
+  }
+  html += '<div style="margin-top:8px;font-size:12px">' + waistMsg;
+  if (iccMsg) html += '<br>' + iccMsg;
+
+  // Healthy reference
+  html += '<br><br><strong>Rangos saludables:</strong><br>';
+  if (sexo === 'M') {
+    html += 'Cintura: <94 cm | ICC: <0.90 | RFM: 14-24%';
+  } else {
+    html += 'Cintura: <80 cm | ICC: <0.80 | RFM: 21-31%';
+  }
+  html += '</div>';
+
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = html;
+}
+
+// ===== TEST INTERPRETATIONS =====
+function updateTest(test) {
+  const isa = getEffectiveISA();
+  const interp = document.getElementById(test + '-interp');
+
+  const interpretations = {
+    toeTouch: {
+      rodillas: { meaning: 'No puede nutar. Compresion toracica superior. Limitacion importante.', exercises: { ancho: '90/90 Hip Lift con ball hold, Hooklying hamstring facilitation, Goblet squat con inhale', estrecho: 'Sidelying 90/90 tilts, Adductor pullback palms down mid reach, Toe-touch hinge con roller' }, level: 'alert' },
+      espinilla: { meaning: 'Puede nutar pero no contranutar. Progreso parcial.', exercises: { ancho: 'All fours breathing, Toe-touch hinge con roller, Banded goblet squat heels elevated', estrecho: 'Hooklying hamstring facilitation, Short-seated low reach, Goblet squat ball between knees' }, level: 'warning' },
+      dedos: { meaning: 'RE a RI a RE completo. Buena movilidad.', exercises: { ancho: 'No correctivos necesarios', estrecho: 'No correctivos necesarios' }, level: 'good' },
+      palmas: { meaning: 'Posible exceso de movilidad. Verificar compensacion.', exercises: { ancho: 'Si hay compensacion: fortalecer core y control excentrico del hinge', estrecho: 'Verificar compensacion. Fortalecer core.' }, level: 'warning' }
+    },
+    squat: {
+      menos60: { meaning: 'No accede a RI/nutacion. Limitacion importante.', exercises: { ancho: 'Heels elevated banded goblet squat, 90/90 hip lift, Quadruped lateral hip shift', estrecho: 'Front heel elevated split squat, Hooklying hamstring facilitation, Sidelying 90/90 tilts' }, level: 'alert' },
+      '60-100': { meaning: 'Puede nutar y RI, no contranutar sacro.', exercises: { ancho: 'Goblet squat ball between knees to box, Half-kneeling lift-off, FFE split squat con hip shift', estrecho: 'Heels elevated goblet squat, Lateral lunge con toe elevation, Split stance deadlift' }, level: 'warning' },
+      mas100: { meaning: 'No puede contranutar sacro. Posible exceso.', exercises: { ancho: 'Sentadilla a caja para limitar rango. Control sacro.', estrecho: 'Sentadilla a caja. Posicion neutra sacro.' }, level: 'warning' },
+      completo: { meaning: 'Buena movilidad de cadera y sacro.', exercises: { ancho: 'No correctivos. Progresar con carga.', estrecho: 'No correctivos. Progresar con carga.' }, level: 'good' }
+    },
+    slr: function() {
+      const izq = document.getElementById('slrIzq').value;
+      const der = document.getElementById('slrDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      const analyze = (val, side) => {
+        if (val === '0-50') { texts.push(side + ': Compresion pelvica posterior. RE profundos rigidos.'); level = 'alert'; }
+        else if (val === '50-60') { texts.push(side + ': Puede nutar/RI, no contranutar lumbar.'); if (level !== 'alert') level = 'warning'; }
+        else if (val === '70-80') { texts.push(side + ': Objetivo alcanzado.'); }
+        else if (val === '90+') { texts.push(side + ': Posible exceso. Verificar compensacion.'); if (level !== 'alert') level = 'warning'; }
+      };
+      if (izq) analyze(izq, 'Izq'); if (der) analyze(der, 'Der');
+      if (izq && der && izq !== der) texts.push('Asimetria detectada — posible patron AIC.');
+      let ex = '';
+      if (level === 'alert') ex = '<div class="exercises">Ejercicios: 90/90 Hip lift con ball hold, Sidelying 90/90 tilts, Hooklying hamstring con ball between knees</div>';
+      else if (level === 'warning') ex = '<div class="exercises">Ejercicios: All fours breathing, Supine alternating cross-connects, Quadruped lateral hip shift</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    },
+    ktc: function() {
+      const izq = document.getElementById('ktcIzq').value, der = document.getElementById('ktcDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      const analyze = (val, side) => {
+        if (val === '60-90') { texts.push(side + ': Orientacion anterior. Limitacion significativa.'); level = 'alert'; }
+        else if (val === '90-110') { texts.push(side + ': Limitada. No alcanza objetivo.'); if (level !== 'alert') level = 'warning'; }
+        else if (val === '120') { texts.push(side + ': Objetivo alcanzado.'); }
+        else if (val === '130+') { texts.push(side + ': Exceso. Verificar APT.'); if (level !== 'alert') level = 'warning'; }
+      };
+      if (izq) analyze(izq, 'Izq'); if (der) analyze(der, 'Der');
+      let ex = '';
+      if (level === 'alert') ex = isa === 'ancho' ? '<div class="exercises">Ejercicios: 90/90 Hip lift, Short-seated low reach, Goblet squat ball between knees to box</div>' : '<div class="exercises">Ejercicios: Sidelying 90/90 tilts, Hooklying hamstring, Heels elevated goblet squat</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    },
+    ober: function() {
+      const izq = document.getElementById('oberIzq').value, der = document.getElementById('oberDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      const analyze = (val, side) => {
+        if (val === 'suspenso') { texts.push(side + ': No hay extension de cadera. Sobreutilizacion flexor cadera.'); level = 'alert'; }
+        else if (val === 'parcial') { texts.push(side + ': No hay RI ni aduccion.'); if (level !== 'alert') level = 'warning'; }
+        else if (val === 'aprobado') { texts.push(side + ': Acceso a RI, aduccion y extension. Bien.'); }
+      };
+      if (izq) analyze(izq, 'Izq'); if (der) analyze(der, 'Der');
+      if (izq && der && izq !== der) texts.push('Asimetria: patron tipico AIC izquierda si Izq < Der.');
+      let ex = '';
+      if (level !== 'good') ex = '<div class="exercises">Ejercicios: HK hip flexor stretch con posterior tilt, Sidelying 90/90 tilts (lado afectado arriba), Adductor pullback, Right sidelying left hip extension</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    },
+    shIR: function() {
+      const izq = document.getElementById('shIRIzq').value, der = document.getElementById('shIRDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      if (izq === 'menos70') { texts.push('Izq: Falta expansion T5-7 anterior.'); level = 'warning'; }
+      else if (izq === '70+') texts.push('Izq: Objetivo alcanzado.');
+      if (der === 'menos70') { texts.push('Der: Falta expansion T5-7 anterior.'); level = 'warning'; }
+      else if (der === '70+') texts.push('Der: Objetivo alcanzado.');
+      if (izq && der && izq !== der) texts.push('Asimetria: patron tipico CB derecha si Izq > Der.');
+      let ex = '';
+      if (level !== 'good') ex = isa === 'ancho' ? '<div class="exercises">Ejercicios: All fours breathing, Quadruped inverted breathing, Crab positions</div>' : '<div class="exercises">Ejercicios: Sidelying 90/90 tilts, Short-seated low reach, Drunken turtle</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    },
+    shER: function() {
+      const izq = document.getElementById('shERIzq').value, der = document.getElementById('shERDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      if (izq === 'menos90') { texts.push('Izq: Acceso limitado a expansion T5-7 posterior.'); level = 'warning'; }
+      else if (izq === '90+') texts.push('Izq: Objetivo alcanzado.');
+      if (der === 'menos90') { texts.push('Der: Acceso limitado a expansion T5-7 posterior.'); level = 'warning'; }
+      else if (der === '90+') texts.push('Der: Objetivo alcanzado.');
+      let ex = '';
+      if (level !== 'good') ex = '<div class="exercises">Ejercicios: Hooklying con external rotation stretch, Same-side connect arm bar, Banded alternating chops</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    },
+    shFlex: function() {
+      const izq = document.getElementById('shFlexIzq').value, der = document.getElementById('shFlexDer').value;
+      if (!izq && !der) { interp.classList.remove('show'); return; }
+      let texts = [], level = 'good';
+      const analyze = (val, side) => {
+        if (val === '0-90') { texts.push(side + ': Compresion caja toracica inferior. Limitacion severa.'); level = 'alert'; }
+        else if (val === '90-120') { texts.push(side + ': Compresion en T5-7 posterior.'); if (level !== 'alert') level = 'warning'; }
+        else if (val === '120-160') { texts.push(side + ': Compresion en T2-4 posterior. Casi bien.'); if (level === 'good') level = 'warning'; }
+        else if (val === '160+') { texts.push(side + ': Objetivo alcanzado.'); }
+      };
+      if (izq) analyze(izq, 'Izq'); if (der) analyze(der, 'Der');
+      let ex = '';
+      if (level === 'alert') ex = isa === 'ancho' ? '<div class="exercises">Ejercicios: Drunken turtle, Short-seated low reach, Supine alternating cross-connects</div>' : '<div class="exercises">Ejercicios: 90/90 Side plank con upward reach, Banded alternating chops, Hooklying</div>';
+      else if (level === 'warning') ex = '<div class="exercises">Ejercicios: All fours breathing, Inverted rockback lat stretch, High reaches, Bar hangs</div>';
+      interp.className = 'interpretation show ' + level;
+      interp.innerHTML = texts.join('<br>') + ex;
+    }
+  };
+
+  if (typeof interpretations[test] === 'function') { interpretations[test](); return; }
+  const sel = document.getElementById(test);
+  const val = sel.value;
+  if (!val || !interpretations[test] || !interpretations[test][val]) { interp.classList.remove('show'); return; }
+  const data = interpretations[test][val];
+  const isaKey = isa || 'estrecho';
+  const ex = data.exercises[isaKey] || data.exercises.estrecho || '';
+  interp.className = 'interpretation show ' + data.level;
+  interp.innerHTML = data.meaning + (ex ? '<div class="exercises">Ejercicios: ' + ex + '</div>' : '');
+}
+
+// ===== PATHOLOGY DATABASE =====
+const pathExercises = {
+  tendinopatia_manguito: { ex: 'RE con banda a 0° (3x15), Face pulls ligeros (3x12), Pendulum Codman (2x30s), Retraccion escapular prono (3x10), Isometricos RE/RI (4x20s)', avoid: 'Press overhead pesado, dips, pullups agresivos, laterales >90°' },
+  impingement_subacromial: { ex: 'RE con banda a 0° (3x15), Wall slides (3x10), Retraccion + depresion escapular (3x10), Serratus push-up (3x10), Y-T-W prono (3x8)', avoid: 'Press militar, laterales >90°, upright row' },
+  inestabilidad_glenohumeral: { ex: 'RE/RI con banda en rango controlado (3x15), Perturbaciones ritmicas (3x30s), DNS bear position (3x20s)', avoid: 'Movimientos balisticos, cargas pesadas en end-range, press tras nuca' },
+  capsulitis_adhesiva: { ex: 'Pendulum Codman (3x1min), Deslizamientos capsulares suaves, Escalado en pared, Estiramiento sleeper (suave)', avoid: 'Forzar rango, estiramientos agresivos, cargas en end-range' },
+  tendinitis_bicipital: { ex: 'Curl isometrico (4x20s), Curl excentrico ligero (3x12), Estiramiento biceps pared (3x30s)', avoid: 'Curl pesado con supinacion forzada, press inclinado profundo' },
+  bursitis_subacromial: { ex: 'RE con banda a 0° (3x15), Retraccion escapular (3x10), Wall slides (3x10). AGUDO: hielo, reposo', avoid: 'Laterales, press overhead, movimientos repetitivos >90°' },
+  rotura_manguito: { ex: 'Isometricos RE/RI (4x20s), Pendulum (2x1min), RE ligero progresivo (3x12), Wall slides (3x10)', avoid: 'Cargas moderadas-altas en abduccion y RE, press overhead' },
+  artrosis_ac: { ex: 'Movilidad activa sin dolor, Retraccion escapular (3x10), RE con banda (3x15)', avoid: 'Press inclinado profundo, dips, movimientos que compriman AC' },
+  slap: { ex: 'Isometricos RE/RI (4x20s), Retraccion escapular (3x10), Estabilizacion dinamica con banda', avoid: 'Movimientos overhead con carga, press tras nuca, pullups' },
+  condromalacia: { ex: 'Isometrica pared (3x30s), Puente gluteos (3x12), Elevacion talon bilateral (3x15), Clamshell con banda (3x12), Extension terminal (3x15)', avoid: 'Sentadilla profunda con carga, extension rodilla pesada, zancadas profundas' },
+  menisco: { ex: 'Extension terminal con banda (3x15), Puente gluteos (3x12), Step-up bajo (3x8), Sentadilla parcial a caja', avoid: 'Sentadilla profunda, giros bruscos, impacto, end-range flexion' },
+  tendinopatia_rotuliana: { ex: 'Isometrica 70° (4x45s), Excentrica en decline (3x12), Spanish squat (3x12), Step-up progresivo', avoid: 'Saltos repetitivos, sentadilla profunda, zancadas con impacto' },
+  gonartrosis: { ex: 'Extension terminal (3x15), Puente gluteos (3x12), Sentadilla parcial a caja (3x10), Bici suave', avoid: 'Impacto, sentadilla profunda, extension rodilla maxima carga' },
+  cintilla_iliotibial: { ex: 'Foam roller IT band, Clamshell (3x15), Puente gluteos (3x12), Hip hike step (3x10)', avoid: 'Correr en cuestas, zancadas laterales con impacto' },
+  lca_operado: { ex: 'Segun fase. Cuadriceps isometricos, Extension terminal, Mini-squat, Puente gluteos, Propiocepcion', avoid: 'Pivotear, deportes contacto (segun fase), impacto alto' },
+  lca_no_operado: { ex: 'Fortalecimiento cuad/isquios, Puente gluteos, Propiocepcion, Co-contraccion, Sentadilla controlada', avoid: 'Pivotes, cambios de direccion bruscos' },
+  bursitis_rotuliana: { ex: 'Extension terminal (3x15), Puente gluteos (3x12), Isometricos cuad. AGUDO: hielo', avoid: 'Arrodillarse, sentadilla profunda, impacto directo' },
+  baker: { ex: 'Extension terminal suave (3x15), Movilidad activa, Puente gluteos (3x12). Tratar causa.', avoid: 'Flexion forzada rodilla, sentadilla profunda' },
+  lumbalgia: { ex: 'Cat-cow (2x8), Bird-dog (3x8/lado), Dead bug (3x8/lado), Puente gluteos (3x12), Respiracion 90/90', avoid: 'Peso muerto pesado sin tecnica, sit-ups, buenos dias pesados' },
+  hernia_discal_lumbar: { ex: 'Respiracion 90/90 pies en pared (3x5), Bird-dog (3x8), Dead bug (3x8), Caminata, Press Pallof (3x10)', avoid: 'FLEXION LUMBAR CARGADA, sit-ups, buenos dias' },
+  protusion_discal: { ex: 'Cat-cow suave (2x8), Bird-dog (3x8), Dead bug (3x8), Puente gluteos (3x12)', avoid: 'Flexion lumbar cargada, rotaciones con carga, sit-ups' },
+  estenosis_lumbar: { ex: 'Flexion lumbar suave sentado (alivio), Bici estatica, Puente gluteos, Dead bug. Flexion relativa.', avoid: 'Extension lumbar forzada, caminar largo sin descanso' },
+  ciatica: { ex: 'Nerve flossing (suave), Cat-cow (2x8), Bird-dog (3x8), Puente gluteos (3x12)', avoid: 'Sentarse periodos largos, flexion lumbar cargada, SLR forzado' },
+  espondilolistesis: { ex: 'Respiracion 90/90, Dead bug (3x8), Puente gluteos (3x12), Press Pallof (3x10). Estabilizacion.', avoid: 'Extension lumbar forzada, hiperextensiones, buenos dias pesados' },
+  espondilosis: { ex: 'Movilidad activa espinal, Cat-cow (2x8), Bird-dog (3x8), Puente gluteos (3x12)', avoid: 'Cargas axiales altas, movimientos balisticos columna' },
+  dorsalgia: { ex: 'Foam roller toracico, Cat-cow (2x8), Open book (3x8/lado), Rotaciones toracicas, Wall angel (3x10)', avoid: 'Sedestacion prolongada sin pausas' },
+  escoliosis: { ex: 'Trabajo unilateral segun curva, Respiracion asimetrica, Side plank (lado convexo)', avoid: 'Cargas axiales altas sin control' },
+  cervicalgia: { ex: 'Chin tucks (3x10), Rotacion cervical suave (2x8/lado), Retraccion escapular (3x10), Respiracion (3min)', avoid: 'Extension cervical forzada, cargas sobre cabeza sin control' },
+  hernia_cervical: { ex: 'Chin tucks suaves (3x10), Isometricos cervicales (4x10s), Retraccion escapular (3x10)', avoid: 'Extension/rotacion cervical forzada, press overhead pesado' },
+  artrosis_cervical: { ex: 'Movilidad activa suave, Chin tucks (3x10), Retraccion escapular (3x10), Isometricos', avoid: 'Movimientos bruscos cervicales, extension forzada' },
+  torticulis: { ex: 'Calor local, movilidad activa suave, Chin tucks (2x8), Estiramiento trapecio suave', avoid: 'Forzar rango, estiramientos agresivos en fase aguda' },
+  cefalea_tensional: { ex: 'Chin tucks (3x10), Estiramiento suboccipitales (3x30s), Estiramiento trapecio (3x30s), Respiracion (5min)', avoid: 'Ejercicios con valsalva prolongada, cargas muy pesadas' },
+  artrosis_cadera: { ex: 'Puente gluteos (3x12), Clamshell (3x12/lado), Sentadilla a caja (3x10), Caminata lateral con banda, Bici', avoid: 'Impacto, sentadilla profunda, aduccion forzada' },
+  bursitis_trocanterica: { ex: 'Puente gluteos (3x12), Abduccion lateral (3x10), Clamshell (3x12). NO decubito lateral afectado.', avoid: 'Aduccion forzada, correr, decubito lateral afectado' },
+  impingement_femoroac: { ex: 'Puente gluteos (3x12), Clamshell (3x12), Sentadilla a caja (rango limitado)', avoid: 'Sentadilla profunda, flexion cadera + RI forzada' },
+  tendinopatia_glutea: { ex: 'Puente gluteos isometrico (4x30s), Puente progresivo (3x12), Clamshell (3x12), Caminata lateral', avoid: 'Estiramientos agresivos gluteo, aduccion forzada' },
+  piriforme: { ex: 'Estiramiento piriforme (3x30s), Clamshell (3x12), Foam roller gluteo, Puente gluteos (3x12)', avoid: 'Sedestacion prolongada, piernas cruzadas' },
+  protesis_cadera: { ex: 'Segun protocolo y tipo de protesis. Puente gluteos (3x12), Caminata, Extension cadera prono', avoid: 'DEPENDE DEL TIPO. Consultar restricciones del cirujano.' },
+  fascitis_plantar: { ex: 'Estiramiento pantorrilla escalon (3x30s), Rodillo planta (2min), Elevacion talon excentrica (3x12)', avoid: 'Correr sobre duro, andar descalzo en duro, impacto' },
+  epicondilitis: { ex: 'Extension muneca excentrica (3x15), Rotaciones antebrazo (3x12), Estiramiento extensores (3x30s)', avoid: 'Agarre fuerte prolongado, extensiones muneca pesadas' },
+  epitrocleitis: { ex: 'Flexion muneca excentrica (3x15), Rotaciones antebrazo (3x12), Estiramiento flexores (3x30s)', avoid: 'Curl pesado, agarre pronacion forzada' },
+  fibromialgia: { ex: 'Aerobico suave (caminata, bici), Movilidad general, Estiramientos suaves, Respiracion. Progresar MUY gradual.', avoid: 'Cargas altas, DOMS excesivo, sesiones largas' },
+  osteoporosis: { ex: 'Ejercicios de carga (sentadilla, peso muerto progresivo), Caminata, Equilibrio, Impacto bajo controlado', avoid: 'Flexion espinal cargada, movimientos balisticos, alto impacto' },
+  diabetes: { ex: 'Aerobico regular, Fuerza moderada, Caminata diaria. MONITORIZAR glucemia.', avoid: 'Ayuno + ejercicio intenso, sesiones largas sin control' },
+  hipertension: { ex: 'Aerobico (caminata, bici), Fuerza moderada, Respiracion controlada. EVITAR valsalva.', avoid: 'Isometricos maximos prolongados, valsalva, cargas muy pesadas' },
+  protesis_rodilla: { ex: 'Extension terminal (3x15), Puente gluteos (3x12), Sentadilla parcial (3x10), Bici. Segun fase.', avoid: 'Impacto, flexion forzada fuera de rango' },
+  esguince_tobillo_recurrente: { ex: 'Propiocepcion unipodal (3x30s), Elevacion talon unilateral (3x12), Caminata lateral, Dorsiflexion pared (3x10)', avoid: 'Inversiones forzadas, terreno irregular sin progresion' },
+  sindrome_tunel_carpiano: { ex: 'Deslizamientos tendinosos y neurales (3x10), Estiramiento flexores muneca (3x30s)', avoid: 'Agarre prolongado, flexion muneca prolongada, vibraciones' }
+};
+
+// ===== SESSION NOTES =====
+function addNota() {
+  const fecha = document.getElementById('notaFecha').value;
+  const texto = document.getElementById('notaTexto').value;
+  const cambios = document.getElementById('notaCambios').value;
+  if (!texto && !cambios) { showToast('Escribe algo antes de guardar'); return; }
+  notas.push({ fecha, texto, cambios });
+  renderNotas();
+  document.getElementById('notaTexto').value = '';
+  document.getElementById('notaCambios').value = '';
+  showToast('Nota guardada (' + notas.length + ')');
+}
+
+function renderNotas() {
+  const container = document.getElementById('notasGuardadas');
+  if (notas.length === 0) { container.innerHTML = ''; return; }
+  let html = '<div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--part2)">Notas guardadas (' + notas.length + ')</div>';
+  notas.forEach((n, i) => {
+    html += '<div class="exercise-card" style="margin-bottom:8px">';
+    html += '<strong>' + n.fecha + '</strong><br>';
+    if (n.texto) html += n.texto + '<br>';
+    if (n.cambios) html += '<em style="color:var(--part2)">Cambios: ' + n.cambios + '</em>';
+    html += ' <span onclick="notas.splice('+i+',1);renderNotas()" style="color:var(--danger);cursor:pointer;float:right;font-size:11px">borrar</span>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ===== GENERATE RESULTS =====
+function generateResults() {
+  const panel = document.getElementById('resultsPanel');
+  const body = document.getElementById('resultsBody');
+  const isa = getISA();
+  const name = document.getElementById('clientName').value || 'Cliente';
+
+  let html = '<div class="result-category"><h3>Perfil: ' + name + '</h3>';
+  html += '<p><strong>ISA:</strong> ' + (isa ? isa.charAt(0).toUpperCase() + isa.slice(1) : 'No medido');
+  if (isa === 'asimetrico') {
+    html += ' (Izq: ' + (document.getElementById('isaIzq').value||'?') + ', Der: ' + (document.getElementById('isaDer').value||'?') + ')';
+  }
+  html += '</p>';
+  html += '<p><strong>Fecha:</strong> ' + document.getElementById('evalDate').value + '</p>';
+  html += '<p><strong>Objetivo:</strong> ' + (document.getElementById('objetivo').value || 'No especificado') + '</p>';
+  const actPrev = document.getElementById('actividadPrevia').value;
+  if (actPrev) html += '<p><strong>Actividad previa:</strong> ' + actPrev.replace(/_/g,' ') + '</p>';
+  html += '<p><strong>Sueno:</strong> ' + document.getElementById('sueno').value + '/10';
+  const hSueno = document.getElementById('horasSueno').value;
+  if (hSueno) html += ' (' + hSueno + 'h/noche)';
+  const desp = document.getElementById('despertares').value;
+  if (desp) html += ' — Despertares: ' + desp;
+  html += ' | <strong>Estres:</strong> ' + document.getElementById('estres').value + '/10</p>';
+
+  // RFM if available
+  const sexo = document.getElementById('sexo').value;
+  const altura = parseFloat(document.getElementById('altura').value);
+  const cintura = parseFloat(document.getElementById('cintura').value);
+  if (sexo && altura && cintura) {
+    const altM = altura/100, cinM = cintura/100;
+    const rfm = sexo === 'M' ? 64 - (20*altM/cinM) : 76 - (20*altM/cinM);
+    html += '<p><strong>RFM:</strong> ' + rfm.toFixed(1) + '% | Cintura: ' + cintura + 'cm</p>';
+  }
+  const peso = document.getElementById('peso').value;
+  if (peso) html += '<p><strong>Peso:</strong> ' + peso + ' kg</p>';
+  html += '</div>';
+
+  // Findings
+  let findings = [], exercises = new Set();
+  document.querySelectorAll('.interpretation.show').forEach(el => {
+    const text = el.textContent;
+    if (text && !text.includes('Objetivo alcanzado') && !text.includes('No correctivos') && !text.includes('RFM') && !text.includes('Saludable') && !text.includes('Atletico') && !text.includes('En forma')) {
+      findings.push(el.innerText.split('Ejercicios:')[0].trim());
+      const exMatch = el.innerText.match(/Ejercicios:\s*(.+)/);
+      if (exMatch) exMatch[1].split(',').forEach(e => exercises.add(e.trim()));
+    }
+  });
+
+  if (findings.length > 0) {
+    html += '<div class="result-category"><h3>Hallazgos principales</h3>';
+    findings.forEach(f => { html += '<div class="exercise-card">' + f + '</div>'; });
+    html += '</div>';
+  }
+  if (exercises.size > 0) {
+    html += '<div class="result-category"><h3>Ejercicios prioritarios (correctivos)</h3>';
+    let i = 1;
+    exercises.forEach(e => { if (i <= 10) html += '<div class="exercise-card"><strong>' + i + '.</strong> ' + e + '</div>'; i++; });
+    html += '</div>';
+  }
+
+  // Pain
+  let pains = [];
+  const painIds = ['painLumbar','painDorsal','painRodIzq','painRodDer','painHomIzq','painHomDer','painCervical','painCadIzq','painCadDer','painTobIzq','painTobDer'];
+  const painLabels = { painLumbar:'Espalda baja', painDorsal:'Dorsal', painRodIzq:'Rodilla Izq', painRodDer:'Rodilla Der', painHomIzq:'Hombro Izq', painHomDer:'Hombro Der', painCervical:'Cervical', painCadIzq:'Cadera Izq', painCadDer:'Cadera Der', painTobIzq:'Tobillo Izq', painTobDer:'Tobillo Der' };
+  painIds.forEach(id => { const v = parseInt(document.getElementById(id).value); if (v > 0) pains.push(painLabels[id] + ': ' + v + '/10'); });
+  const otraZona = document.getElementById('painOtraZona').value;
+  const otraDolor = parseInt(document.getElementById('painOtra').value);
+  if (otraZona && otraDolor > 0) pains.push(otraZona + ': ' + otraDolor + '/10');
+  if (pains.length > 0) {
+    html += '<div class="result-category"><h3>Dolor reportado</h3>';
+    pains.forEach(p => { html += '<div class="exercise-card">' + p + '</div>'; });
+    html += '</div>';
+  }
+
+  // Pathologies
+  let paths = [];
+  document.querySelectorAll('[id^="path"] input:checked').forEach(cb => paths.push(cb.value));
+  const otra = document.getElementById('otraPatologia').value;
+  if (otra) paths.push(otra);
+  if (paths.length > 0) {
+    html += '<div class="result-category"><h3>Patologias — Ejercicios y precauciones</h3>';
+    paths.forEach(p => {
+      const label = p.replace(/_/g, ' ');
+      const data = pathExercises[p];
+      if (data) {
+        html += '<div class="exercise-card"><strong>' + label.charAt(0).toUpperCase() + label.slice(1) + ':</strong><br><span style="color:var(--accent)">Hacer:</span> ' + data.ex + '<br><span style="color:var(--danger)">Evitar:</span> ' + data.avoid + '</div>';
+      } else {
+        html += '<div class="exercise-card"><strong>' + label.charAt(0).toUpperCase() + label.slice(1) + ':</strong> Consultar protocolo especifico</div>';
+      }
+    });
+    html += '</div>';
+  }
+
+  // Optional tests
+  let optionals = [];
+  const respMin = document.getElementById('respMin').value;
+  const apnea = document.getElementById('apnea').value;
+  const gripI = document.getElementById('gripIzq').value;
+  const gripD = document.getElementById('gripDer').value;
+  const flex = document.getElementById('flexiones').value;
+  const planch = document.getElementById('plancha').value;
+  const cmj = document.getElementById('cmjAltura').value;
+  if (respMin) optionals.push('Resp/min: ' + respMin + (parseInt(respMin) > 20 ? ' (ALTO)' : parseInt(respMin) < 12 ? ' (BAJO)' : ' (normal)'));
+  if (apnea) optionals.push('Apnea: ' + apnea + 's' + (parseInt(apnea) < 20 ? ' (BAJO)' : parseInt(apnea) <= 40 ? ' (normal)' : ' (BUENO)'));
+  if (gripI || gripD) {
+    var gripSexo = sexo || document.getElementById('sexo').value;
+    var gripRef = gripSexo === 'Mujer' ? {bajo:20,normal:30} : {bajo:30,normal:40};
+    var evalGrip = function(v) { if(!v) return '-'; v=parseInt(v); return v<gripRef.bajo?'BAJO':v<gripRef.normal?'normal':'BUENO'; };
+    optionals.push('Grip: Izq ' + (gripI||'-') + 'kg (' + evalGrip(gripI) + ') / Der ' + (gripD||'-') + 'kg (' + evalGrip(gripD) + ')');
+  }
+  if (flex) optionals.push('Flexiones: ' + flex);
+  if (planch) optionals.push('Plancha: ' + planch + 's');
+  if (cmj) optionals.push('CMJ: ' + cmj + ' cm');
+  if (optionals.length > 0) {
+    html += '<div class="result-category"><h3>Tests opcionales</h3>';
+    optionals.forEach(o => { html += '<div class="exercise-card">' + o + '</div>'; });
+    html += '</div>';
+  }
+
+  // Notes
+  if (notas.length > 0) {
+    html += '<div class="result-category"><h3>Notas de sesion (' + notas.length + ')</h3>';
+    notas.forEach(n => {
+      html += '<div class="exercise-card"><strong>' + n.fecha + ':</strong> ';
+      if (n.texto) html += n.texto;
+      if (n.cambios) html += ' <em>[Cambios: ' + n.cambios + ']</em>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== COPY ALL =====
+function copyAll() {
+  const name = document.getElementById('clientName').value || 'Cliente';
+  const date = document.getElementById('evalDate').value;
+  const isa = getISA();
+  let text = '=== VALORACION ===\nCliente: ' + name + '\nFecha: ' + date + '\nEval: ' + document.getElementById('evalNumber').value + 'a\n';
+  text += 'Edad: ' + (document.getElementById('edad').value||'-') + ' | Sexo: ' + (document.getElementById('sexo').value||'-') + ' | Objetivo: ' + (document.getElementById('objetivo').value||'-') + '\n';
+  text += 'Actividad previa: ' + (document.getElementById('actividadPrevia').value||'-') + ' | Sueno: ' + document.getElementById('sueno').value + '/10 (' + (document.getElementById('horasSueno').value||'-') + 'h, despertares: ' + (document.getElementById('despertares').value||'-') + ') | Estres: ' + document.getElementById('estres').value + '/10\n';
+  text += 'ISA: ' + (isa||'No medido');
+  if (isa === 'asimetrico') text += ' (Izq:' + (document.getElementById('isaIzq').value||'?') + ', Der:' + (document.getElementById('isaDer').value||'?') + ')';
+  const isaG = document.getElementById('isaGrados').value;
+  if (isaG) text += ' (' + isaG + '°)';
+  text += '\n\n--- TREN INFERIOR ---\n';
+  const tt = document.getElementById('toeTouch'); if (tt.value) text += 'Toe Touch: ' + tt.options[tt.selectedIndex].text + '\n';
+  const sq = document.getElementById('squat'); if (sq.value) text += 'Squat: ' + sq.options[sq.selectedIndex].text + '\n';
+  let sqObs = []; document.querySelectorAll('.checkbox-group label.checked input').forEach(cb => { if (['valgo','varo','hipshift','talones','ribflare'].includes(cb.value)) sqObs.push(cb.value); });
+  if (sqObs.length) text += 'Obs: ' + sqObs.join(', ') + '\n';
+  ['slrIzq','slrDer'].forEach(id => { const v = document.getElementById(id).value; if (v) text += 'SLR ' + id.replace('slr','') + ': ' + v + '\n'; });
+  ['ktcIzq','ktcDer'].forEach(id => { const v = document.getElementById(id).value; if (v) text += 'KTC ' + id.replace('ktc','') + ': ' + v + '\n'; });
+  ['oberIzq','oberDer'].forEach(id => { const v = document.getElementById(id).value; if (v) text += 'Ober ' + id.replace('ober','') + ': ' + v + '\n'; });
+  ['femRIIzq','femRIDer','femREIzq','femREDer'].forEach(id => { const v = document.getElementById(id).value; if (v) text += id.replace('fem','Fem ') + ': ' + v + '°\n'; });
+
+  text += '\n--- TREN SUPERIOR ---\n';
+  ['shIRIzq','shIRDer','shERIzq','shERDer','shFlexIzq','shFlexDer','shABDIzq','shABDDer','shADDIzq','shADDDer'].forEach(id => {
+    const el = document.getElementById(id); if (el.value) text += id.replace('sh','Sh ') + ': ' + el.options[el.selectedIndex].text + '\n';
+  });
+
+  text += '\n--- DOLOR ---\n';
+  const painIds = ['painLumbar','painDorsal','painRodIzq','painRodDer','painHomIzq','painHomDer','painCervical','painCadIzq','painCadDer','painTobIzq','painTobDer'];
+  const painLabels = { painLumbar:'Lumbar', painDorsal:'Dorsal', painRodIzq:'Rod Izq', painRodDer:'Rod Der', painHomIzq:'Hom Izq', painHomDer:'Hom Der', painCervical:'Cervical', painCadIzq:'Cad Izq', painCadDer:'Cad Der', painTobIzq:'Tob Izq', painTobDer:'Tob Der' };
+  painIds.forEach(id => { const v = parseInt(document.getElementById(id).value); if (v > 0) text += painLabels[id] + ': ' + v + '/10\n'; });
+
+  // Medidas
+  const peso = document.getElementById('peso').value, altura = document.getElementById('altura').value, cintura = document.getElementById('cintura').value;
+  if (peso || altura || cintura) {
+    text += '\n--- MEDIDAS ---\n';
+    if (peso) text += 'Peso: ' + peso + 'kg\n';
+    if (altura) text += 'Altura: ' + altura + 'cm\n';
+    if (cintura) text += 'Cintura: ' + cintura + 'cm\n';
+    const sexo = document.getElementById('sexo').value;
+    if (sexo && altura && cintura) {
+      const rfm = sexo === 'M' ? 64 - (20*(parseFloat(altura)/100)/(parseFloat(cintura)/100)) : 76 - (20*(parseFloat(altura)/100)/(parseFloat(cintura)/100));
+      text += 'RFM: ' + rfm.toFixed(1) + '%\n';
+    }
+    ['cadera','brazoIzq','brazoDer','musloIzq','musloDer'].forEach(id => { const v = document.getElementById(id).value; if (v) text += id + ': ' + v + 'cm\n'; });
+  }
+
+  let paths = []; document.querySelectorAll('[id^="path"] input:checked').forEach(cb => paths.push(cb.value.replace(/_/g,' ')));
+  const otra = document.getElementById('otraPatologia').value; if (otra) paths.push(otra);
+  if (paths.length) text += '\n--- PATOLOGIAS ---\n' + paths.join(', ') + '\n';
+
+  const obs = document.getElementById('observaciones').value; if (obs) text += '\n--- OBS ---\n' + obs + '\n';
+  const respMin = document.getElementById('respMin').value, apnea = document.getElementById('apnea').value, gripI = document.getElementById('gripIzq').value, gripD = document.getElementById('gripDer').value, flex = document.getElementById('flexiones').value, planch = document.getElementById('plancha').value, cmj = document.getElementById('cmjAltura').value;
+  if (respMin||apnea||gripI||gripD||flex||planch||cmj) {
+    text += '\n--- TESTS ---\n';
+    if (respMin) text += 'Resp: ' + respMin + '/min\n';
+    if (apnea) text += 'Apnea: ' + apnea + 's\n';
+    if (gripI||gripD) text += 'Grip: ' + (gripI||'-') + '/' + (gripD||'-') + 'kg\n';
+    if (flex) text += 'Flexiones: ' + flex + '\n';
+    if (planch) text += 'Plancha: ' + planch + 's\n';
+    if (cmj) text += 'CMJ: ' + cmj + 'cm\n';
+  }
+
+  let exSet = new Set();
+  document.querySelectorAll('.interpretation.show').forEach(el => { const m = el.innerText.match(/Ejercicios:\s*(.+)/); if (m) m[1].split(',').forEach(e => exSet.add(e.trim())); });
+  if (exSet.size > 0) { text += '\n--- EJERCICIOS ---\n'; let i = 1; exSet.forEach(e => { text += i + '. ' + e + '\n'; i++; }); }
+
+  if (notas.length > 0) { text += '\n--- NOTAS ---\n'; notas.forEach(n => { text += '[' + n.fecha + '] ' + (n.texto||'') + (n.cambios ? ' ['+n.cambios+']' : '') + '\n'; }); }
+
+  navigator.clipboard.writeText(text).then(() => showToast('Copiado')).catch(() => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copiado'); });
+}
+
+// ===== EXPORT CSV =====
+function exportCSV() {
+  const name = document.getElementById('clientName').value || 'Cliente';
+  const date = document.getElementById('evalDate').value;
+  const isa = getISA();
+  const sexo = document.getElementById('sexo').value;
+  const altura = document.getElementById('altura').value;
+  const cintura = document.getElementById('cintura').value;
+  let rfm = '';
+  if (sexo && altura && cintura) {
+    const r = sexo === 'M' ? 64 - (20*(parseFloat(altura)/100)/(parseFloat(cintura)/100)) : 76 - (20*(parseFloat(altura)/100)/(parseFloat(cintura)/100));
+    rfm = r.toFixed(1);
+  }
+  let sqObs = []; document.querySelectorAll('.checkbox-group label.checked input').forEach(cb => { if (['valgo','varo','hipshift','talones','ribflare'].includes(cb.value)) sqObs.push(cb.value); });
+  let paths = []; document.querySelectorAll('[id^="path"] input:checked').forEach(cb => paths.push(cb.value.replace(/_/g,' ')));
+  const otra = document.getElementById('otraPatologia').value; if (otra) paths.push(otra);
+  let notasStr = notas.map(n => '[' + n.fecha + '] ' + (n.texto||'') + (n.cambios ? ' ['+n.cambios+']' : '')).join(' | ');
+
+  const headers = ['Nombre','Fecha','Eval','Edad','Sexo','Objetivo','Actividad_Previa','Sueno_Calidad','Sueno_Horas','Despertares','Estres','ISA','ISA_Grados','ISA_Izq','ISA_Der','Peso_kg','Altura_cm','Cintura_cm','Cadera_cm','RFM','Brazo_Izq','Brazo_Der','Muslo_Izq','Muslo_Der','Plic_Abdom','Plic_Triceps','Plic_Supra','Toe_Touch','Squat','Squat_Obs','SLR_Izq','SLR_Der','KTC_Izq','KTC_Der','Ober_Izq','Ober_Der','FemRI_Izq','FemRI_Der','FemRE_Izq','FemRE_Der','ShIR_Izq','ShIR_Der','ShER_Izq','ShER_Der','ShFlex_Izq','ShFlex_Der','ShABD_Izq','ShABD_Der','ShADD_Izq','ShADD_Der','D_Lumbar','D_Dorsal','D_Rod_Izq','D_Rod_Der','D_Hom_Izq','D_Hom_Der','D_Cervical','D_Cad_Izq','D_Cad_Der','D_Tob_Izq','D_Tob_Der','Patologias','Resp','Apnea','Grip_Izq','Grip_Der','Flexiones','Plancha','CMJ_cm','Observaciones','Notas'];
+  const values = [
+    name, date, document.getElementById('evalNumber').value, document.getElementById('edad').value, sexo, document.getElementById('objetivo').value,
+    document.getElementById('actividadPrevia').value, document.getElementById('sueno').value, document.getElementById('horasSueno').value, document.getElementById('despertares').value, document.getElementById('estres').value,
+    isa, document.getElementById('isaGrados').value, isa==='asimetrico'?document.getElementById('isaIzq').value:'', isa==='asimetrico'?document.getElementById('isaDer').value:'',
+    document.getElementById('peso').value, altura, cintura, document.getElementById('cadera').value, rfm,
+    document.getElementById('brazoIzq').value, document.getElementById('brazoDer').value, document.getElementById('musloIzq').value, document.getElementById('musloDer').value,
+    document.getElementById('plicAbdominal').value, document.getElementById('plicTriceps').value, document.getElementById('plicSuprailiaco').value,
+    document.getElementById('toeTouch').value, document.getElementById('squat').value, sqObs.join('; '),
+    document.getElementById('slrIzq').value, document.getElementById('slrDer').value, document.getElementById('ktcIzq').value, document.getElementById('ktcDer').value,
+    document.getElementById('oberIzq').value, document.getElementById('oberDer').value,
+    document.getElementById('femRIIzq').value, document.getElementById('femRIDer').value, document.getElementById('femREIzq').value, document.getElementById('femREDer').value,
+    document.getElementById('shIRIzq').value, document.getElementById('shIRDer').value, document.getElementById('shERIzq').value, document.getElementById('shERDer').value,
+    document.getElementById('shFlexIzq').value, document.getElementById('shFlexDer').value,
+    document.getElementById('shABDIzq').value, document.getElementById('shABDDer').value, document.getElementById('shADDIzq').value, document.getElementById('shADDDer').value,
+    document.getElementById('painLumbar').value, document.getElementById('painDorsal').value,
+    document.getElementById('painRodIzq').value, document.getElementById('painRodDer').value,
+    document.getElementById('painHomIzq').value, document.getElementById('painHomDer').value, document.getElementById('painCervical').value,
+    document.getElementById('painCadIzq').value, document.getElementById('painCadDer').value,
+    document.getElementById('painTobIzq').value, document.getElementById('painTobDer').value,
+    paths.join('; '), document.getElementById('respMin').value, document.getElementById('apnea').value,
+    document.getElementById('gripIzq').value, document.getElementById('gripDer').value,
+    document.getElementById('flexiones').value, document.getElementById('plancha').value, document.getElementById('cmjAltura').value,
+    document.getElementById('observaciones').value, notasStr
+  ];
+  const esc = v => { const s = String(v||''); return (s.includes(',')||s.includes('"')||s.includes('\n')||s.includes(';')) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const csv = headers.map(esc).join(',') + '\n' + values.map(esc).join(',') + '\n';
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'valoracion_' + name.replace(/\s+/g,'_') + '_' + date + '.csv';
+  a.click();
+  showToast('CSV descargado');
+}
+
+function copyParaSheet() {
+  var g = function(id) { var e = document.getElementById(id); return e ? (e.value || '') : ''; };
+  var date = g('fecha') || new Date().toLocaleDateString('es-ES');
+  var isaRes = g('isaResult') || g('isa');
+  var toeRes = g('toeTouch');
+  var sqRes = g('squatResult') || g('squat');
+  var rows = [
+    date,
+    g('peso'),
+    g('altura'),
+    g('cintura'),
+    g('cadera'),
+    '', // RFM - calcular en Sheet o a mano
+    '', // ICC - calcular en Sheet o a mano
+    g('brazoIzq'),
+    g('brazoDer'),
+    g('musloIzq'),
+    g('musloDer'),
+    '', // separador
+    isaRes,
+    toeRes,
+    sqRes,
+    g('aslrIzq'),
+    g('aslrDer'),
+    g('ktcIzq'),
+    g('ktcDer'),
+    g('oberIzq'),
+    g('oberDer'),
+    g('femRIIzq'),
+    g('femRIDer'),
+    g('femREIzq'),
+    g('femREDer'),
+    '', // separador
+    g('shIRIzq'),
+    g('shIRDer'),
+    g('shERIzq'),
+    g('shERDer'),
+    g('shFlexIzq'),
+    g('shFlexDer'),
+    '', // separador
+    g('painLumbar'),
+    g('painDorsal'),
+    g('painRodIzq'),
+    g('painRodDer'),
+    g('painHomIzq'),
+    g('painHomDer'),
+    g('painCervical'),
+    g('painCadIzq'),
+    g('painCadDer'),
+    g('painTobIzq'),
+    g('painTobDer'),
+    '', // separador
+    g('sueno'),
+    g('estres'),
+    g('respMin'),
+    g('apnea'),
+    g('gripIzq'),
+    g('gripDer'),
+    g('flexiones'),
+    g('plancha'),
+    g('cmjAltura')
+  ];
+  var text = rows.join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Copiado. Selecciona celda B30 en la Sheet, pega (Ctrl+V) y los datos se reparten en la columna.');
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Copiado. Pega en celda B30 de la Sheet.');
+  });
+}
+</script>
+</body>
+</html>
