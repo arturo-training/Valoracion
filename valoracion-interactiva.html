@@ -916,15 +916,26 @@ select:focus, input:focus, textarea:focus {
       <div class="patho-category-title">Otros</div>
       <div class="checkbox-group" id="pathOtros">
         <label onclick="toggleCheck(this)"><input type="checkbox" value="fascitis_plantar"> Fascitis plantar</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_aquiles"> Tendinopatia aquiles</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="periostitis_tibial"> Periostitis tibial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hallux_valgus"> Hallux valgus (juanete)</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="esguince_tobillo_recurrente"> Esguince tobillo recurrente</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="epicondilitis"> Epicondilitis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="epitrocleitis"> Epitrocleitis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="sindrome_tunel_carpiano"> S. tunel carpiano</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="pubalgia"> Pubalgia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="sacroileitis"> Sacroileitis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_isquiotibial"> Tendinopatia isquiotibial</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="latigazo_cervical"> Latigazo cervical</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="diastasis_rectos"> Diastasis de rectos</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="fibromialgia"> Fibromialgia</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="osteoporosis"> Osteoporosis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="diabetes"> Diabetes</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="hipertension"> Hipertension</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="asma"> Asma</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="embarazo"> Embarazo</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="postparto"> Postparto</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="protesis_rodilla"> Protesis de rodilla</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="esguince_tobillo_recurrente"> Esguince tobillo recurrente</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="sindrome_tunel_carpiano"> S. tunel carpiano</label>
       </div>
     </div>
     <div class="field" style="margin-top: 12px">
@@ -1071,6 +1082,25 @@ select:focus, input:focus, textarea:focus {
         <input type="number" id="cmjTiempo" placeholder="ms" min="100" max="1000">
       </div>
     </div>
+    <div class="field" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border)">
+      <label>Tests Adulto Mayor / Power Frail</label>
+      <div class="hint">Para clientes >60 anos o con fragilidad. Chair Stand mide fuerza funcional MMII.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="sub-label">30s Chair Stand (reps)</label>
+        <div class="hint">Sentarse/levantarse en 30 segundos.</div>
+        <input type="number" id="chairStand30" placeholder="reps" min="0" max="40" oninput="evalChairStand()">
+      </div>
+      <div class="field">
+        <label class="sub-label">5x Sit-to-Stand (seg)</label>
+        <div class="hint">Tiempo en completar 5 repeticiones.</div>
+        <input type="number" id="sitToStand5" placeholder="seg" min="0" max="60" step="0.1" oninput="evalSitToStand()">
+      </div>
+    </div>
+    <div class="interpretation" id="chair-interp" style="margin:-8px 0 8px"></div>
+    <div class="interpretation" id="sts-interp" style="margin:-4px 0 16px"></div>
+
     <div class="field" style="margin-top:12px">
       <label>Observaciones generales</label>
       <textarea id="observaciones" placeholder="Notas libres sobre la evaluacion..." rows="3"></textarea>
@@ -1212,7 +1242,7 @@ function evalGrip() {
   const el = document.getElementById('grip-interp');
   if (!gi && !gd) { el.classList.remove('show'); return; }
   const sexo = document.getElementById('sexo').value;
-  const ref = sexo === 'Mujer' ? {bajo:20, normal:30, label:'Mujer'} : {bajo:30, normal:40, label:'Hombre'};
+  const ref = sexo === 'F' ? {bajo:20, normal:30, label:'Mujer'} : {bajo:30, normal:40, label:'Hombre'};
   function evalOne(v) {
     if (!v) return {txt:'-', cls:'normal'};
     v = parseInt(v);
@@ -1231,6 +1261,67 @@ function evalGrip() {
     const diff = Math.abs(parseInt(gi) - parseInt(gd));
     const avg = (parseInt(gi) + parseInt(gd)) / 2;
     if (diff > avg * 0.1) text += '. Asimetria de ' + diff + 'kg entre manos.';
+  }
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = text;
+}
+
+// ===== ELDERLY TESTS =====
+function evalChairStand() {
+  const v = parseInt(document.getElementById('chairStand30').value);
+  const el = document.getElementById('chair-interp');
+  if (!v) { el.classList.remove('show'); return; }
+  const edad = parseInt(document.getElementById('edad').value) || 70;
+  const sexo = document.getElementById('sexo').value;
+  // Norms: Rikli & Jones (2013) - 30-Second Chair Stand Test
+  const norms = {
+    60: {M:{lo:14,hi:19}, F:{lo:12,hi:17}},
+    65: {M:{lo:12,hi:18}, F:{lo:11,hi:16}},
+    70: {M:{lo:12,hi:17}, F:{lo:10,hi:15}},
+    75: {M:{lo:11,hi:17}, F:{lo:10,hi:15}},
+    80: {M:{lo:10,hi:15}, F:{lo:9,hi:14}},
+    85: {M:{lo:8,hi:14}, F:{lo:8,hi:13}},
+    90: {M:{lo:7,hi:12}, F:{lo:4,hi:11}}
+  };
+  let ageKey = 70;
+  if (edad < 63) ageKey = 60;
+  else if (edad < 68) ageKey = 65;
+  else if (edad < 73) ageKey = 70;
+  else if (edad < 78) ageKey = 75;
+  else if (edad < 83) ageKey = 80;
+  else if (edad < 88) ageKey = 85;
+  else ageKey = 90;
+  const s = sexo === 'F' ? 'F' : 'M';
+  const ref = norms[ageKey][s];
+  let cls, text;
+  if (v < ref.lo) {
+    cls = 'alert';
+    text = '30s Chair Stand: ' + v + ' reps — POR DEBAJO del promedio (ref ' + ref.lo + '-' + ref.hi + ' para ' + ageKey + '-' + (ageKey+4) + ' anos, ' + (s==='F'?'mujer':'hombre') + '). Indica debilidad funcional MMII. Priorizar fuerza basica: sentadilla asistida, levantarse de silla con control.';
+  } else if (v <= ref.hi) {
+    cls = 'good';
+    text = '30s Chair Stand: ' + v + ' reps — NORMAL (ref ' + ref.lo + '-' + ref.hi + ' para ' + ageKey + '-' + (ageKey+4) + ' anos). Fuerza funcional adecuada.';
+  } else {
+    cls = 'good';
+    text = '30s Chair Stand: ' + v + ' reps — POR ENCIMA del promedio (ref ' + ref.lo + '-' + ref.hi + '). Buena potencia funcional MMII.';
+  }
+  el.className = 'interpretation show ' + cls;
+  el.innerHTML = text;
+}
+
+function evalSitToStand() {
+  const v = parseFloat(document.getElementById('sitToStand5').value);
+  const el = document.getElementById('sts-interp');
+  if (!v) { el.classList.remove('show'); return; }
+  let cls, text;
+  if (v <= 12) {
+    cls = 'good';
+    text = '5x Sit-to-Stand: ' + v + 's — NORMAL (<12s). Sin riesgo elevado de caidas. Buena fuerza y control funcional.';
+  } else if (v <= 15) {
+    cls = 'warning';
+    text = '5x Sit-to-Stand: ' + v + 's — RIESGO MODERADO (12-15s). Vigilar equilibrio y fuerza MMII. Incluir ejercicios de levantarse/sentarse y equilibrio monopodal.';
+  } else {
+    cls = 'alert';
+    text = '5x Sit-to-Stand: ' + v + 's — RIESGO ALTO (>15s). Debilidad funcional significativa. Riesgo caidas elevado. Programa prioritario: fuerza MMII + equilibrio + movilidad. Considerar derivar a fisio si hay dolor.';
   }
   el.className = 'interpretation show ' + cls;
   el.innerHTML = text;
@@ -1509,8 +1600,835 @@ const pathExercises = {
   hipertension: { ex: 'Aerobico (caminata, bici), Fuerza moderada, Respiracion controlada. EVITAR valsalva.', avoid: 'Isometricos maximos prolongados, valsalva, cargas muy pesadas' },
   protesis_rodilla: { ex: 'Extension terminal (3x15), Puente gluteos (3x12), Sentadilla parcial (3x10), Bici. Segun fase.', avoid: 'Impacto, flexion forzada fuera de rango' },
   esguince_tobillo_recurrente: { ex: 'Propiocepcion unipodal (3x30s), Elevacion talon unilateral (3x12), Caminata lateral, Dorsiflexion pared (3x10)', avoid: 'Inversiones forzadas, terreno irregular sin progresion' },
-  sindrome_tunel_carpiano: { ex: 'Deslizamientos tendinosos y neurales (3x10), Estiramiento flexores muneca (3x30s)', avoid: 'Agarre prolongado, flexion muneca prolongada, vibraciones' }
+  sindrome_tunel_carpiano: { ex: 'Deslizamientos tendinosos y neurales (3x10), Estiramiento flexores muneca (3x30s)', avoid: 'Agarre prolongado, flexion muneca prolongada, vibraciones' },
+  tendinopatia_aquiles: { ex: 'Elevacion talon excentrica (3x15 en escalon), Isometricos talon (4x30s), HSR progresivo. Heel raises bilateral → unilateral', avoid: 'Saltos, carrera en fase aguda, estiramientos agresivos gastrocnemio, plios' },
+  pubalgia: { ex: 'Aduccion isometrica Copenhagen (4x20s), Puente gluteos (3x12), Plancha lateral (3x20s), Hip flexor stretch suave', avoid: 'Aduccion con carga explosiva, cambios de direccion bruscos, sit-ups' },
+  diastasis_rectos: { ex: 'Respiracion diafragmatica (3x5), Dead bug modificado (3x8), Puente gluteos (3x12), Caminata. Activacion transverso.', avoid: 'Crunches, sit-ups, plancha frontal (hasta recuperar), valsalva, extension espinal forzada' },
+  sacroileitis: { ex: 'Puente gluteos (3x12), Clamshell (3x12), Press Pallof (3x10), Respiracion 90/90, Bird-dog (3x8)', avoid: 'Sentadilla profunda unilateral, movimientos asimetricos con carga, hiperextension' },
+  latigazo_cervical: { ex: 'Isometricos cervicales multidireccionales (4x10s), Chin tucks (3x10), Movilidad activa suave, Retraccion escapular (3x10)', avoid: 'Extension/rotacion cervical forzada, cargas sobre cabeza, movimientos balisticos cabeza' },
+  periostitis_tibial: { ex: 'Elevacion talon bilateral (3x15), Dorsiflexion pared (3x10), Foam roller gemelos, Fortalecimiento tibial anterior (3x15)', avoid: 'Correr sobre duro, saltos, impacto repetitivo, progresion rapida volumen carrera' },
+  tendinopatia_isquiotibial: { ex: 'Nordics excentricos progresivos (3x5), Puente gluteos unilateral (3x8), Romanian deadlift ligero (3x10), Isometricos en elongacion (4x30s)', avoid: 'Sprint maximal, estiramientos agresivos, sentadilla profunda con dominancia isquiotibial' },
+  embarazo: { ex: 'Caminata, Sentadilla a caja (3x10), Puente gluteos (3x12), Kegel (3x10), Respiracion. MONITORIZAR RPE ≤7. Hidratacion.', avoid: 'Decubito supino >16 sem, valsalva, impacto alto, ejercicios con riesgo de caida, hipertermia' },
+  postparto: { ex: 'Respiracion diafragmatica (3x5), Activacion transverso, Puente gluteos (3x12), Caminata. Progresion MUY gradual. Verificar diastasis.', avoid: 'Crunches/sit-ups hasta cierre diastasis, cargas pesadas primeras 12 sem, saltos, correr antes de 12 sem' },
+  asma: { ex: 'Aerobico progresivo (caminata, bici), Fuerza moderada, Respiracion nasal, Calentamiento prolongado (10-15min). Inhalador accesible.', avoid: 'Ejercicio en frio seco sin calentamiento, intensidades maximas sin progresion, ambientes con alergenos' },
+  hallux_valgus: { ex: 'Separadores dedos (uso diario), Fortalecimiento intrinseco pie (short foot 3x10), Elevacion talon unipodal (3x12), Movilidad 1a MTF', avoid: 'Calzado estrecho durante ejercicio, carga excesiva en antepie medial' }
 };
+
+// ===== CONOR HARRIS EXERCISE TEMPLATES (condensed) =====
+const conorTemplates = {
+  'Tertiary Narrow': {
+    label: 'Terciario Estrecho',
+    focus: 'Pie/tobillo, rodilla/tibia — dorsiflexion, RI tibia, control pronacion',
+    warmup: [
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Wall-Referenced Respiratory Hinge', sr:'1x5'},
+      {ex:'90/90 Alternating Crossover (Left foot wall)', sr:'2x5 ea'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'Left Sidelying Right FA Abduction', sr:'2x5'},
+      {ex:'Wall Referenced Hinge', sr:'1x8 ea'},
+      {ex:'Supported Bench Lunge - Hip Flexion Bias', sr:'1x10 ea'}
+    ],
+    main: [
+      {ex:'Bilateral KB Deadlift with Elevation', prog:'Trap Bar Bilateral Deadlift', sr:'3x8→3x6'},
+      {ex:'90/90 DB Alternating Floor Press', prog:'DB Alternating Hooklying Bench Press', sr:'3x10ea→3x8ea'},
+      {ex:'Barbell Landmine Press - Staggered Stance', prog:'HK Landmine Alternating Press', sr:'3x12ea→3x10ea'},
+      {ex:'Single Leg Kickstand Hinge w/ Rack Support', prog:'Staggered Stance Deadlift Contralateral', sr:'3x12ea→3x10ea'},
+      {ex:'Lateral Sled Drag', sr:'3x30s ea'},
+      {ex:'Slider Hamstring Curl - Ball Between Knees', prog:'TRX Hamstring Curl', sr:'3x12'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  },
+  'Tertiary Wide': {
+    label: 'Terciario Ancho',
+    focus: 'Pie/tobillo, rodilla/tibia — dorsiflexion, supinacion, control lateral',
+    warmup: [
+      {ex:'Balloon Breathing in Short-Seated', sr:'1x5'},
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Hooklying Hamstring Bridge with Low Reach', sr:'2x5'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'PRI Left Sidelying Knee Toward Knee', sr:'2x5'},
+      {ex:'Lateral Cable Chop Staggered Stance (ER Bias)', sr:'1x8 ea'}
+    ],
+    main: [
+      {ex:'Trap Bar Bilateral Deadlift', prog:'Barbell Conventional Deadlift', sr:'3x8→3x6'},
+      {ex:'Chest Supported Alternating Row - Upper Back', prog:'Cable Low Row', sr:'3x10ea→3x8ea'},
+      {ex:'DB Goblet Squat Heels Elevated to Box', prog:'KB Front Rack Squat', sr:'3x10→3x8'},
+      {ex:'1-Arm Supported Row - Humeral Extension', prog:'Chest Supported Row Lat Focus', sr:'3x10ea→3x8ea'},
+      {ex:'Wall Reference Split Squat + Contra Reach', prog:'RFESS Contralateral Load', sr:'3x12ea→3x10ea'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  },
+  'Secondary Narrow': {
+    label: 'Secundario Estrecho',
+    focus: 'Pelvis/cadera, columna lumbar — control pelvico, rotaciones cadera',
+    warmup: [
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Wall-Referenced Respiratory Hinge', sr:'1x5'},
+      {ex:'90/90 Alternating Crossover (Left foot wall)', sr:'2x5 ea'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'Left Sidelying Right FA Abduction', sr:'2x5'},
+      {ex:'Respiratory Goblet Squat Heels Elevated to Box', sr:'1x8'},
+      {ex:'Supported Bench Lunge - Hip Flexion Bias', sr:'1x10 ea'}
+    ],
+    main: [
+      {ex:'DB Goblet Squat Heels Elevated to Box', prog:'KB Front Rack Squat', sr:'3x10→3x8'},
+      {ex:'1-Arm Supported Row Humeral Extension', prog:'Chest Supported Row Lat Focus', sr:'3x10ea→3x8ea'},
+      {ex:'Wall Reference Split Squat + Contra Reach', prog:'RFESS Contralateral Load', sr:'3x12ea→3x10ea'},
+      {ex:'Long Seated Alternating Row Lat Focus', prog:'HK Alternating Row', sr:'3x12ea→3x10ea'},
+      {ex:'Glute Ham-Raise Hip Extension', sr:'3x12'},
+      {ex:'90/90 Side Plank with Upward Reach', sr:'3x30s ea'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  },
+  'Secondary Wide': {
+    label: 'Secundario Ancho',
+    focus: 'Pelvis/cadera, columna lumbar — control pelvico bilateral, movilidad cadera',
+    warmup: [
+      {ex:'Balloon Breathing in Short-Seated', sr:'1x5'},
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Hooklying Hamstring Bridge with Low Reach', sr:'2x5'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'PRI Left Sidelying Knee Toward Knee', sr:'2x5'},
+      {ex:'Lateral Cable Chop Staggered Stance', sr:'1x8 ea'}
+    ],
+    main: [
+      {ex:'Trap Bar Bilateral Deadlift', prog:'Barbell Conventional Deadlift', sr:'3x8→3x6'},
+      {ex:'Chest Supported Row Upper Back Focus', sr:'3x10ea→3x8ea'},
+      {ex:'Lateral Kickstand Hinge Contralateral Load', prog:'Staggered Stance DL Contralateral', sr:'3x10ea'},
+      {ex:'DB Wall Referenced Incline Alternating Press', prog:'Alternating Arnold Press Wall Ref', sr:'3x10ea'},
+      {ex:'Single Leg Split Squat Rack-Supported', prog:'Cross-Connect Step-Up', sr:'3x12ea→3x10ea'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  },
+  'Primary Narrow': {
+    label: 'Primario Estrecho',
+    focus: 'Torax/escapula, hombro, cuello — expansion toracica, control escapular',
+    warmup: [
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Wall-Referenced Respiratory Hinge', sr:'1x5'},
+      {ex:'90/90 Alternating Crossover (Left foot wall)', sr:'2x5 ea'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'Left Sidelying Right FA Abduction', sr:'2x5'},
+      {ex:'Respiratory Goblet Squat Heels Elevated', sr:'1x8'},
+      {ex:'Supported Bench Lunge Hip Flexion Bias', sr:'1x10 ea'}
+    ],
+    main: [
+      {ex:'Landmine Squat', prog:'Cross-Grip Front Squat', sr:'3x8→3x6'},
+      {ex:'Chest Supported Alternating Row Upper Back', sr:'3x10ea→3x8ea'},
+      {ex:'Lateral Kickstand Hinge Toe Elevated Contra', prog:'Staggered Stance DL Contra', sr:'3x10ea'},
+      {ex:'DB Wall Referenced Incline Alternating Press', prog:'Alt Arnold Press Wall Ref', sr:'3x10ea'},
+      {ex:'Wall Referenced Bear Plank', prog:'PRI All Four Belly Lift', sr:'3x30s→3x5ea'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  },
+  'Primary Wide': {
+    label: 'Primario Ancho',
+    focus: 'Torax/escapula, hombro, cuello — expansion posterior, inhalacion',
+    warmup: [
+      {ex:'Balloon Breathing in Short-Seated', sr:'1x5'},
+      {ex:'Quadruped Breathing with Offset Reach', sr:'1x5 ea'},
+      {ex:'Hooklying Hamstring Bridge with Low Reach', sr:'2x5'},
+      {ex:'90/90 Hip Lift with Left Hip Shift', sr:'2x5'},
+      {ex:'Right Sidelying Left Adductor Pullback', sr:'2x5'},
+      {ex:'PRI Left Sidelying Knee Toward Knee', sr:'2x5'},
+      {ex:'Lateral Cable Chop Staggered Stance', sr:'1x8 ea'}
+    ],
+    main: [
+      {ex:'Trap Bar Bilateral Deadlift', prog:'Barbell Conventional DL', sr:'3x8→3x6'},
+      {ex:'Chest Supported Row Upper Back Focus', sr:'3x10ea→3x8ea'},
+      {ex:'DB Goblet Squat Heels Elevated Ball Knees', prog:'KB Front Rack Squat', sr:'3x10→3x8'},
+      {ex:'1-Arm Supported Row Humeral Extension', sr:'3x10ea'},
+      {ex:'Sled Push/Pull', sr:'3x30s ea'}
+    ],
+    reset: {ex:'Inverted Hanging Breathing', sr:'2 min'}
+  }
+};
+
+// ===== COMPENSATION LEVEL DETERMINATION =====
+function determineCompensation(isa) {
+  // Terciaria: pie/tobillo/rodilla problems
+  // Secundaria: pelvis/cadera/lumbar
+  // Primaria: torax/hombro/cuello
+  let tertiary = 0, secondary = 0, primary = 0;
+
+  // Check lower limb tests (tertiary)
+  const squat = document.getElementById('squat').value;
+  if (squat === 'compensacion_temprana' || squat === 'no_paralela') tertiary += 2;
+  else if (squat === 'compensacion_media') tertiary += 1;
+  let sqObs = [];
+  document.querySelectorAll('.checkbox-group label.checked input').forEach(cb => {
+    if (['valgo','varo','talones'].includes(cb.value)) sqObs.push(cb.value);
+  });
+  if (sqObs.length > 0) tertiary += sqObs.length;
+
+  // Check pelvis/hip tests (secondary)
+  const oberI = document.getElementById('oberIzq').value;
+  const oberD = document.getElementById('oberDer').value;
+  if (oberI === 'positivo' || oberI === 'muy_positivo') secondary += 2;
+  if (oberD === 'positivo' || oberD === 'muy_positivo') secondary += 2;
+
+  const slrI = document.getElementById('slrIzq').value;
+  const slrD = document.getElementById('slrDer').value;
+  if (slrI === '0-45' || slrD === '0-45') secondary += 2;
+  else if (slrI === '45-70' || slrD === '45-70') secondary += 1;
+
+  const ktcI = document.getElementById('ktcIzq').value;
+  const ktcD = document.getElementById('ktcDer').value;
+  if (ktcI === '0-60' || ktcD === '0-60') secondary += 2;
+  else if (ktcI === '60-120' || ktcD === '60-120') secondary += 1;
+
+  const femRII = parseInt(document.getElementById('femRIIzq').value) || 0;
+  const femRID = parseInt(document.getElementById('femRIDer').value) || 0;
+  const femREI = parseInt(document.getElementById('femREIzq').value) || 0;
+  const femRED = parseInt(document.getElementById('femREDer').value) || 0;
+  if (femRII > 0 && femREI > 0 && (femRII + femREI) < 80) secondary += 2;
+  if (femRID > 0 && femRED > 0 && (femRID + femRED) < 80) secondary += 2;
+
+  // Check upper body tests (primary)
+  const shFlI = document.getElementById('shFlexIzq').value;
+  const shFlD = document.getElementById('shFlexDer').value;
+  if (shFlI === '0-90' || shFlD === '0-90') primary += 3;
+  else if (shFlI === '90-120' || shFlD === '90-120') primary += 2;
+  else if (shFlI === '120-160' || shFlD === '120-160') primary += 1;
+
+  const shIRI = document.getElementById('shIRIzq').value;
+  const shIRD = document.getElementById('shIRDer').value;
+  if (shIRI === 'menos70' || shIRD === 'menos70') primary += 1;
+
+  const shERI = document.getElementById('shERIzq').value;
+  const shERD = document.getElementById('shERDer').value;
+  if (shERI === 'menos90' || shERD === 'menos90') primary += 1;
+
+  // Pain modifiers
+  const pLumbar = parseInt(document.getElementById('painLumbar').value) || 0;
+  const pCervical = parseInt(document.getElementById('painCervical').value) || 0;
+  const pRodI = parseInt(document.getElementById('painRodIzq').value) || 0;
+  const pRodD = parseInt(document.getElementById('painRodDer').value) || 0;
+  const pHomI = parseInt(document.getElementById('painHomIzq').value) || 0;
+  const pHomD = parseInt(document.getElementById('painHomDer').value) || 0;
+  if (pRodI > 3 || pRodD > 3) tertiary += 1;
+  if (pLumbar > 3) secondary += 1;
+  if (pHomI > 3 || pHomD > 3 || pCervical > 3) primary += 1;
+
+  // Work order: tertiary first if significant, then secondary, then primary
+  let level, score;
+  if (tertiary >= 3) { level = 'tertiary'; score = tertiary; }
+  else if (secondary >= 3) { level = 'secondary'; score = secondary; }
+  else if (primary >= 2) { level = 'primary'; score = primary; }
+  else if (tertiary > secondary && tertiary > primary) { level = 'tertiary'; score = tertiary; }
+  else if (secondary >= primary) { level = 'secondary'; score = secondary; }
+  else { level = 'primary'; score = primary; }
+
+  return { level, tertiary, secondary, primary, score };
+}
+
+// ===== ROTATION & LATERALIZATION ANALYSIS =====
+function analyzeAsymmetries() {
+  let findings = [];
+
+  // Hip rotation asymmetry
+  const femRII = parseInt(document.getElementById('femRIIzq').value) || 0;
+  const femRID = parseInt(document.getElementById('femRIDer').value) || 0;
+  const femREI = parseInt(document.getElementById('femREIzq').value) || 0;
+  const femRED = parseInt(document.getElementById('femREDer').value) || 0;
+
+  if (femRII && femRID && Math.abs(femRII - femRID) >= 10) {
+    const side = femRII > femRID ? 'izda' : 'dcha';
+    findings.push({type:'rotation', text:'Asimetria RI cadera: mas limitada en ' + (side==='izda'?'dcha':'izda') + '. Patron compatible con rotacion del esqueleto axial hacia ' + (femRII > femRID ? 'derecha' : 'izquierda') + '.'});
+  }
+
+  // Femoral ante/retroversion
+  if (femRII > 0 && femREI > 0) {
+    const ratio = femRII / femREI;
+    if (ratio >= 2.5) findings.push({type:'anatomy', text:'Cadera Izq: ratio RI/RE=' + ratio.toFixed(1) + ' → posible anteversion femoral. Favorecer sentadilla estrecha y peso muerto convencional.'});
+    else if (1/ratio >= 2.5) findings.push({type:'anatomy', text:'Cadera Izq: ratio RE/RI=' + (1/ratio).toFixed(1) + ' → posible retroversion femoral. Puede tolerar peso muerto sumo y sentadilla ancha.'});
+  }
+  if (femRID > 0 && femRED > 0) {
+    const ratio = femRID / femRED;
+    if (ratio >= 2.5) findings.push({type:'anatomy', text:'Cadera Der: ratio RI/RE=' + ratio.toFixed(1) + ' → posible anteversion femoral.'});
+    else if (1/ratio >= 2.5) findings.push({type:'anatomy', text:'Cadera Der: ratio RE/RI=' + (1/ratio).toFixed(1) + ' → posible retroversion femoral.'});
+  }
+
+  // Total hip ROM check
+  if (femRII > 0 && femREI > 0 && (femRII + femREI) < 80) {
+    findings.push({type:'mobility', text:'Cadera Izq: ROM total RI+RE = ' + (femRII+femREI) + '° (<100° objetivo). Problema de orientacion y/o compresion.'});
+    if (femRII < femREI) findings.push({type:'muscle', text:'Cadera Izq RI limitada → Facilitar: aductores, gluteo medio, OI, TAV. Inhibir: gluteo max, rotadores profundos, psoas, TFL.'});
+    else findings.push({type:'muscle', text:'Cadera Izq RE limitada → Facilitar: gluteo max, OE, rotadores profundos, psoas. Inhibir: aductores, suelo pelvico, isquios.'});
+  }
+  if (femRID > 0 && femRED > 0 && (femRID + femRED) < 80) {
+    findings.push({type:'mobility', text:'Cadera Der: ROM total RI+RE = ' + (femRID+femRED) + '° (<100° objetivo).'});
+    if (femRID < femRED) findings.push({type:'muscle', text:'Cadera Der RI limitada → Facilitar: aductores, gluteo medio, OI, TAV. Inhibir: gluteo max, rotadores profundos, psoas, TFL.'});
+    else findings.push({type:'muscle', text:'Cadera Der RE limitada → Facilitar: gluteo max, OE, rotadores profundos. Inhibir: aductores, suelo pelvico, isquios.'});
+  }
+
+  // Shoulder asymmetries → rotation pattern
+  const shIRI = document.getElementById('shIRIzq').value;
+  const shIRD = document.getElementById('shIRDer').value;
+  if (shIRI && shIRD && shIRI !== shIRD) {
+    if (shIRI === 'menos70' && shIRD !== 'menos70') findings.push({type:'rotation', text:'RI hombro izq limitada: patron tipico AIC (rotacion axial izquierda). Confirmar con rotaciones cadera.'});
+    else if (shIRD === 'menos70' && shIRI !== 'menos70') findings.push({type:'rotation', text:'RI hombro der limitada: patron atipico o CB derecha.'});
+  }
+
+  // GIRD calculation
+  const shERI = document.getElementById('shERIzq').value;
+  const shERD = document.getElementById('shERDer').value;
+  if (shIRI && shERI && shIRD && shERD) {
+    // Simplified GIRD check
+    if ((shIRI === 'menos70' && shERI === '90+') || (shIRD === 'menos70' && shERD === '90+')) {
+      findings.push({type:'shoulder', text:'GIRD detectado (RI limitada con RE excesiva). Valorar retroversion humeral vs restriccion capsular posterior. Sleeper stretch + control escapular.'});
+    }
+  }
+
+  // Shoulder flexion asymmetry
+  const shFlI = document.getElementById('shFlexIzq').value;
+  const shFlD = document.getElementById('shFlexDer').value;
+  if (shFlI && shFlD && shFlI !== shFlD) {
+    findings.push({type:'shoulder', text:'Asimetria flexion hombro Izq(' + shFlI.replace('menos','<') + ') vs Der(' + shFlD.replace('menos','<') + '). Trabajar lado limitado con progresion.'});
+  }
+
+  // SLR asymmetry
+  const slrI = document.getElementById('slrIzq').value;
+  const slrD = document.getElementById('slrDer').value;
+  if (slrI && slrD && slrI !== slrD) {
+    findings.push({type:'rotation', text:'Asimetria SLR: patron tipico AIC si Izq < Der (rotacion axial izquierda).'});
+  }
+
+  return findings;
+}
+
+// ===== BUILD FULL RECOMMENDATION =====
+// ===== CONCORDANCE CHECKER =====
+function buildConcordance(isa) {
+  if (!isa || isa === 'no_medido' || isa === 'normal') return '';
+  const isNarrow = (isa === 'estrecho' || isa === 'asimetrico');
+
+  // Expected findings per ISA type (Mentorship p.407)
+  const expected = isNarrow ? {
+    ober:   {expect:'positivo/muy_positivo', label:'Positivo (ext cadera limitada)', good:['positivo','muy_positivo'], bad:['negativo']},
+    slr:    {expect:'45-70', label:'~50° (limitado)', good:['45-70'], neutral:['0-45'], bad:['70-90']},
+    ktc:    {expect:'120+', label:'~120° (buena flexion)', good:['120+'], neutral:['60-120'], bad:['0-60']},
+    squat:  {expect:'suelo/paralela', label:'Al suelo (buena profundidad)', good:['suelo','paralela'], bad:['compensacion_temprana','no_paralela']},
+    toeTouch:{expect:'limitado/rodillas', label:'Limitado (rodillas/media tibia)', good:['rodillas','media_tibia'], bad:['suelo_facil']},
+    shIR:   {expect:'menos70', label:'<70° (limitada)', good:['menos70'], bad:['70+']},
+    shER:   {expect:'90+', label:'≥90° (normal)', good:['90+'], bad:['menos90']},
+    shFlex: {expect:'160+', label:'>160° (buena)', good:['160+'], neutral:['120-160'], bad:['0-90','90-120']}
+  } : {
+    ober:   {expect:'negativo', label:'Negativo (buena extension)', good:['negativo'], bad:['positivo','muy_positivo']},
+    slr:    {expect:'70-90', label:'>70° (bueno)', good:['70-90'], neutral:['45-70'], bad:['0-45']},
+    ktc:    {expect:'60-120 o menos', label:'<110° (no llega rodilla al pecho)', good:['0-60','60-120'], bad:['120+']},
+    squat:  {expect:'paralela', label:'Hasta paralela (limitado en profundidad)', good:['paralela','compensacion_media'], bad:['suelo']},
+    toeTouch:{expect:'limitado', label:'Limitado (media tibia)', good:['media_tibia','rodillas'], bad:['suelo_facil']},
+    shIR:   {expect:'70+', label:'>70° (buena)', good:['70+'], bad:['menos70']},
+    shER:   {expect:'menos90', label:'<90° (limitada)', good:['menos90'], bad:['90+']},
+    shFlex: {expect:'90-120 o 120-160', label:'100-120° (limitada)', good:['90-120','120-160'], neutral:['0-90'], bad:['160+']}
+  };
+
+  // Read actual values
+  const actual = {
+    ober: {izq: document.getElementById('oberIzq').value, der: document.getElementById('oberDer').value},
+    slr: {izq: document.getElementById('slrIzq').value, der: document.getElementById('slrDer').value},
+    ktc: {izq: document.getElementById('ktcIzq').value, der: document.getElementById('ktcDer').value},
+    squat: {val: document.getElementById('squat').value},
+    toeTouch: {val: document.getElementById('toeTouch').value},
+    shIR: {izq: document.getElementById('shIRIzq').value, der: document.getElementById('shIRDer').value},
+    shER: {izq: document.getElementById('shERIzq').value, der: document.getElementById('shERDer').value},
+    shFlex: {izq: document.getElementById('shFlexIzq').value, der: document.getElementById('shFlexDer').value}
+  };
+
+  const testLabels = {
+    ober:'Ober', slr:'SLR/ASLR', ktc:'Knee to Chest', squat:'Squat',
+    toeTouch:'Toe Touch', shIR:'RI Hombro', shER:'RE Hombro', shFlex:'Flexion Hombro'
+  };
+
+  let matches = 0, mismatches = 0, total = 0, items = [];
+
+  Object.keys(expected).forEach(test => {
+    const exp = expected[test];
+    const act = actual[test];
+    let values = [];
+
+    if (act.val !== undefined) {
+      if (act.val) values.push({side:'', val:act.val});
+    } else {
+      if (act.izq) values.push({side:'Izq', val:act.izq});
+      if (act.der) values.push({side:'Der', val:act.der});
+    }
+
+    values.forEach(v => {
+      total++;
+      let status, icon, color, explanation;
+      if (exp.good.includes(v.val)) {
+        status = 'ok'; icon = '✓'; color = '#27ae60'; matches++;
+        explanation = 'Concordante con ISA ' + (isNarrow?'estrecho':'ancho');
+      } else if (exp.neutral && exp.neutral.includes(v.val)) {
+        status = 'neutral'; icon = '~'; color = '#f39c12'; matches++;
+        explanation = 'Aceptable, pero no el valor tipico esperado';
+      } else if (exp.bad.includes(v.val)) {
+        status = 'mismatch'; icon = '✗'; color = '#e74c3c'; mismatches++;
+        explanation = getDiscordanceExplanation(test, v.val, isNarrow);
+      } else {
+        status = 'unknown'; icon = '?'; color = '#95a5a6';
+        explanation = 'Valor no clasificado';
+      }
+
+      items.push({
+        test: testLabels[test] + (v.side ? ' '+v.side : ''),
+        expected: exp.label,
+        actual: v.val.replace(/_/g,' '),
+        icon, color, explanation, status
+      });
+    });
+  });
+
+  if (total === 0) return '';
+
+  const pct = Math.round(matches / total * 100);
+  const overallColor = pct >= 75 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
+  const overallLabel = pct >= 75 ? 'Alta concordancia — interpretacion coherente' : pct >= 50 ? 'Concordancia moderada — revisar discordancias' : 'Baja concordancia — posible error ISA o patron atipico';
+
+  let html = '<div class="result-category" style="border-left:4px solid ' + overallColor + '">';
+  html += '<h3 style="color:' + overallColor + '">Verificacion de Concordancia ISA (' + pct + '%)</h3>';
+  html += '<div class="exercise-card" style="border:1px solid ' + overallColor + ';background:var(--card-bg)">';
+  html += '<strong>' + overallLabel + '</strong>';
+  html += '<br><small>' + matches + ' concordantes / ' + mismatches + ' discordantes / ' + total + ' evaluados</small>';
+  if (mismatches === 0 && total >= 4) html += '<br><span style="color:#27ae60;font-weight:600">La valoracion es coherente con el ISA medido. Buen trabajo.</span>';
+  html += '</div>';
+
+  // Show each test comparison
+  html += '<table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:8px">';
+  html += '<tr style="border-bottom:1px solid var(--border);font-weight:600"><td style="padding:4px">Test</td><td>Esperado</td><td>Resultado</td><td></td><td>Nota</td></tr>';
+  items.forEach(it => {
+    const bg = it.status === 'mismatch' ? 'rgba(231,76,60,.08)' : 'transparent';
+    html += '<tr style="border-bottom:1px solid var(--border);background:' + bg + '">';
+    html += '<td style="padding:4px;font-weight:500">' + it.test + '</td>';
+    html += '<td style="padding:4px;font-size:11px;opacity:.8">' + it.expected + '</td>';
+    html += '<td style="padding:4px">' + it.actual + '</td>';
+    html += '<td style="padding:4px;color:' + it.color + ';font-weight:700;font-size:14px">' + it.icon + '</td>';
+    html += '<td style="padding:4px;font-size:11px;' + (it.status==='mismatch'?'color:#e74c3c;font-weight:500':'opacity:.7') + '">' + it.explanation + '</td>';
+    html += '</tr>';
+  });
+  html += '</table>';
+
+  if (mismatches > 0) {
+    html += '<div class="exercise-card" style="margin-top:8px;font-size:12px;border-left:3px solid #f39c12">';
+    html += '<strong>Cuando hay discordancias, preguntate:</strong><br>';
+    html += '1. ¿He medido bien el ISA? (usar goniómetro, palpar costillas 7-10)<br>';
+    html += '2. ¿He ejecutado el test correctamente? (posicion, instrucciones al cliente)<br>';
+    html += '3. ¿El cliente tiene una variante anatomica? (anteversion/retroversion, escoliosis)<br>';
+    html += '4. ¿Hay patologia que altere el patron? (cirugia previa, protesis, lesion)<br>';
+    html += '5. ¿Es un patron asimetrico? (ISA diferente cada lado → medir bilateral)';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function getDiscordanceExplanation(test, val, isNarrow) {
+  const explanations = {
+    ober: {
+      narrow: 'Ober negativo en ISA estrecho es raro. Revisar: ¿ISA bien medido? ¿Extension cadera real o compensada por lumbar?',
+      wide: 'Ober positivo en ISA ancho: posible patron mixto, restriccion capsular independiente, o ISA asimetrico.'
+    },
+    slr: {
+      narrow: 'SLR alto en ISA estrecho: puede indicar hiperlaxitud, ISA no tan estrecho como parece, o compensacion lumbar.',
+      wide: 'SLR muy bajo en ISA ancho: restriccion severa. ¿Hernia/protusion? ¿Dolor irradiado? Verificar.'
+    },
+    ktc: {
+      narrow: 'KTC limitado en ISA estrecho es atipico. ¿Restriccion de cadera independiente? ¿Artrosis? ¿Impingement FAI?',
+      wide: 'KTC >120° en ISA ancho: ¿compensacion lumbar (posterior tilt excesivo)? Observar ritmo lumbopelvico.'
+    },
+    squat: {
+      narrow: 'Squat limitado en ISA estrecho: puede haber restriccion tobillo (dorsiflexion) o patron de compresion inferior.',
+      wide: 'Squat profundo en ISA ancho es raro. ¿Hiperlaxitud? ¿ISA realmente ancho? Remedir.'
+    },
+    toeTouch: {
+      narrow: 'Toe touch al suelo facil en ISA estrecho: ¿hiperextencion rodillas? ¿Pelvis va en bloque? Valorar compensacion.',
+      wide: 'Similar al esperado pero revisar curvas de la columna durante el movimiento.'
+    },
+    shIR: {
+      narrow: 'RI hombro >70° en ISA estrecho es atipico. ¿Hiperlaxitud? ¿Retroversion humeral? ¿ISA no tan estrecho?',
+      wide: 'RI hombro <70° en ISA ancho: restriccion capsular posterior adicional, GIRD, o patron mixto.'
+    },
+    shER: {
+      narrow: 'RE hombro <90° en ISA estrecho: restriccion capsular anterior, o patron mixto torax/hombro.',
+      wide: 'RE hombro >90° en ISA ancho: puede indicar hiperlaxitud anterior GH o ISA no tan ancho.'
+    },
+    shFlex: {
+      narrow: 'Flexion hombro limitada en ISA estrecho: restriccion toracica importante. ¿Cifosis? ¿Restriccion escapular?',
+      wide: 'Flexion hombro >160° en ISA ancho es raro. ¿Compensacion con extension toracica? ¿ISA bien medido?'
+    }
+  };
+  const key = isNarrow ? 'narrow' : 'wide';
+  return (explanations[test] && explanations[test][key]) || 'Valor no esperado para este ISA. Revisar medicion.';
+}
+
+function buildRecommendations(isa) {
+  if (!isa || isa === 'no_medido') return '';
+  const isaKey = (isa === 'estrecho' || isa === 'asimetrico') ? 'Narrow' : 'Wide';
+  const isaLabel = isaKey === 'Narrow' ? 'Estrecho (<90°)' : 'Ancho (>110°)';
+
+  const comp = determineCompensation(isa);
+  const compLabels = {tertiary:'Terciario',secondary:'Secundario',primary:'Primario'};
+  const compLabel = compLabels[comp.level] || 'Secundario';
+
+  // Select template
+  const templateKey = (comp.level === 'tertiary' ? 'Tertiary' : comp.level === 'secondary' ? 'Secondary' : 'Primary') + ' ' + isaKey;
+  const tmpl = conorTemplates[templateKey];
+  if (!tmpl) return '';
+
+  let html = '<div class="result-category" style="border-left:4px solid var(--accent)">';
+  html += '<h3 style="color:var(--accent)">Programa Sugerido (Conor Harris)</h3>';
+
+  // Compensation summary
+  html += '<div class="exercise-card" style="background:var(--card-bg);border:1px solid var(--accent)">';
+  html += '<strong>ISA:</strong> ' + isaLabel + ' | <strong>Nivel compensacion:</strong> ' + compLabel;
+  html += '<br><small style="opacity:.8">Terciario: ' + comp.tertiary + ' pts | Secundario: ' + comp.secondary + ' pts | Primario: ' + comp.primary + ' pts</small>';
+  html += '<br><strong>Foco:</strong> ' + tmpl.focus;
+  html += '<br><small style="opacity:.7">Orden de trabajo: Terciario → Secundario → Primario (bottom-up)</small>';
+  html += '</div>';
+
+  // ISA expected findings
+  if (isaKey === 'Narrow') {
+    html += '<div class="exercise-card" style="font-size:12px"><strong>ISA Estrecho — Expectativas:</strong> Ober positivo, SLR ~50°, KTC ~120°, Squat al suelo, Toe touch limitado, RI hombro <70°, Flexion hombro >160°. <em>Necesita expansion, exhalacion, nutacion.</em></div>';
+  } else {
+    html += '<div class="exercise-card" style="font-size:12px"><strong>ISA Ancho — Expectativas:</strong> Ober negativo, SLR >70°, KTC <110°, Squat hasta paralela, RI hombro >70°, RE hombro <90°, Flexion hombro 100-120°. <em>Necesita inhalacion, expansion posterior, contranutacion.</em></div>';
+  }
+
+  // Warmup resets
+  html += '<div style="margin-top:12px"><strong style="color:var(--part2)">WARMUP / RESETS</strong> <small>(bajo umbral, parasimpatico)</small></div>';
+  tmpl.warmup.forEach((w,i) => {
+    html += '<div class="exercise-card" style="padding:6px 10px;margin:3px 0"><strong>WU' + Math.ceil((i+1)/2) + '.</strong> ' + w.ex + ' <span style="color:var(--accent);float:right">' + w.sr + '</span></div>';
+  });
+
+  // Main exercises
+  html += '<div style="margin-top:12px"><strong style="color:var(--part2)">EJERCICIOS PRINCIPALES</strong> <small>(alto umbral, simpatico)</small></div>';
+  tmpl.main.forEach((m,i) => {
+    const block = String.fromCharCode(65 + Math.floor(i/2)) + ((i%2)+1);
+    html += '<div class="exercise-card" style="padding:6px 10px;margin:3px 0"><strong>' + block + '.</strong> ' + m.ex;
+    if (m.prog) html += ' <span style="color:var(--part2);font-size:11px">→ Prog: ' + m.prog + '</span>';
+    html += ' <span style="color:var(--accent);float:right">' + m.sr + '</span></div>';
+  });
+
+  // Reset at end
+  html += '<div class="exercise-card" style="padding:6px 10px;margin:3px 0;border-left:3px solid var(--part2)"><strong>D1.</strong> ' + tmpl.reset.ex + ' <span style="color:var(--accent);float:right">' + tmpl.reset.sr + '</span> <small>(reset final)</small></div>';
+
+  // Asymmetry analysis
+  const asymm = analyzeAsymmetries();
+  if (asymm.length > 0) {
+    html += '<div style="margin-top:16px"><strong style="color:var(--part2)">ANALISIS ASIMETRIAS Y ROTACION</strong></div>';
+    asymm.forEach(a => {
+      const color = a.type === 'rotation' ? 'var(--warning)' : a.type === 'anatomy' ? 'var(--accent)' : a.type === 'muscle' ? 'var(--part2)' : a.type === 'shoulder' ? '#e67e22' : 'var(--text)';
+      html += '<div class="exercise-card" style="padding:6px 10px;margin:3px 0;border-left:3px solid ' + color + ';font-size:12px">' + a.text + '</div>';
+    });
+  }
+
+  // Anatomy-based modifications
+  let anatMods = [];
+  const isaGrados = parseFloat(document.getElementById('isaGrados').value) || 0;
+  if (isaKey === 'Narrow' && isaGrados > 0 && isaGrados < 75) {
+    anatMods.push('Torax estrecho: press puede ser menos efectivo (recorrido corto → se va a deltoides ant). Considerar aperturas/around. Agarre ~1.5x ancho biacromial.');
+  }
+  if (isaKey === 'Wide' && isaGrados > 120) {
+    anatMods.push('Torax ancho: press estandar funciona bien. Agarre hasta 2x ancho biacromial si hombros sanos.');
+  }
+
+  // Check Ober for squat/hinge modifications
+  const oberI = document.getElementById('oberIzq').value;
+  const oberD = document.getElementById('oberDer').value;
+  if (oberI === 'positivo' || oberI === 'muy_positivo' || oberD === 'positivo' || oberD === 'muy_positivo') {
+    anatMods.push('Ober positivo: extension cadera limitada. La extension faltante se compensara en lumbar. Cuidado con hip thrust sin control lumbar, zancadas largas. Hacer reset pelvico previo.');
+  }
+
+  // Tendinopathy protocol reminder
+  let paths = [];
+  document.querySelectorAll('[id^="path"] input:checked').forEach(cb => paths.push(cb.value));
+  const hasTendinopatia = paths.some(p => p.includes('tendin'));
+  if (hasTendinopatia) {
+    anatMods.push('TENDINOPATIA: ISOs y ejercicios lentos preferibles (menor presion intratendinosa). HSR (Heavy Slow Resistance). 6-8 semanas recuperacion propiedades. Ley de Davis: tejido se adapta a la carga. Evitar plios en fase aguda.');
+  }
+
+  // Elderly considerations
+  const edad = parseInt(document.getElementById('edad').value) || 0;
+  if (edad >= 60) {
+    anatMods.push('ADULTO MAYOR: Progresion muy gradual. Priorizar equilibrio y potencia. Incluir trabajo propiocepcion. Monitorizar respuesta autonomica (FR, sensacion).');
+  }
+
+  if (anatMods.length > 0) {
+    html += '<div style="margin-top:16px"><strong style="color:var(--part2)">CONSIDERACIONES ESPECIFICAS</strong></div>';
+    anatMods.forEach(m => {
+      html += '<div class="exercise-card" style="padding:6px 10px;margin:3px 0;font-size:12px;border-left:3px solid var(--warning)">' + m + '</div>';
+    });
+  }
+
+  html += '</div>';
+  return html;
+}
+
+// ===== EVIDENCE SECTION =====
+function buildEvidenceSection(isa) {
+  let html = '<div class="result-category" style="border-left:4px solid #2c3e50">';
+  html += '<h3 style="color:#2c3e50">Evidencia Cientifica — Referencias por Test</h3>';
+  html += '<div style="font-size:11px;opacity:.7;margin-bottom:10px">Fiabilidad, validez y consideraciones clinicas de los tests utilizados. Citas con enlace a PubMed/PMC.</div>';
+
+  const evidence = {
+    isa: {
+      title: 'Angulo Infraesternal (ISA)',
+      icon: '📐',
+      reliability: 'ICC intra-evaluador 0.991, inter-evaluador 0.993 (radiografico). Lado derecho ICC 0.866/0.813, lado izquierdo ICC 0.919/0.846.',
+      validity: 'Indicador valido de estrategia respiratoria dominante (inhalacion vs exhalacion).',
+      refs: [
+        {t:'Reliability and Validity of ISA by Radiographic Methods',u:'https://www.jkema.org/archive/view_article?pid=jkema-2-2-33',a:'Kim et al.'},
+        {t:'Intra/Inter-rater Reliabilities of ISA Measurement',u:'http://www.kptjournal.org/journal/view.html?doi=10.18857%2Fjkpt.2015.27.3.154',a:'Kim & Lee'}
+      ]
+    },
+    ober: {
+      title: 'Test de Ober',
+      icon: '🦵',
+      reliability: 'ICC 0.90-0.91 con inclinometro. Inter-evaluador r=0.80-0.90.',
+      validity: 'IMPORTANTE: No evalua banda iliotibial aislada. Willett 2016 (cadaverico) demostro que mide tension de gluteo medio/minimo y capsula articular de cadera.',
+      clinical: 'Ober positivo = extension cadera limitada, no BIT tensa. Concuerda con interpretacion PRI/IKN.',
+      refs: [
+        {t:'An Anatomic Investigation of the Ober Test',u:'https://journals.sagepub.com/doi/abs/10.1177/0363546515621762',a:'Willett et al. 2016'}
+      ]
+    },
+    aslr: {
+      title: 'Active Straight Leg Raise (ASLR)',
+      icon: '🦿',
+      reliability: 'ICC 0.985-0.998 con Kinovea para angulo de flexion.',
+      validity: 'Test de transferencia de carga pelvica y control motor, NO solo flexibilidad isquiotibial. Requiere: flexion cadera ipsilateral + extension contralateral + cierre de fuerza abdominal lateral.',
+      refs: [
+        {t:'Intra/Inter-Examiner Reliability of Kinovea for Hip Flexion',u:'https://www.mdpi.com/2076-3417/15/3/1452',a:'MDPI 2025'}
+      ]
+    },
+    squat: {
+      title: 'Evaluacion Sentadilla',
+      icon: '🏋️',
+      reliability: 'Fiable para medicion repetida de patrones de movimiento y desplazamiento medial de rodilla.',
+      validity: 'Limitaciones: FMS y sentadilla profunda — falta de validez para evaluar deficits posturales. Evidencia debil para prediccion de lesiones con FMS <14.',
+      clinical: 'Util como screening de compensaciones, no como predictor de lesiones. Valgo, anterioracion pelvica y elevacion talones si informan sobre desequilibrios.',
+      refs: [
+        {t:'Deep squat test: Convergent validity and ability to discriminate',u:'https://www.sciencedirect.com/science/article/pii/S1360859224000068',a:'ScienceDirect 2024'}
+      ]
+    },
+    valgo: {
+      title: 'Valgo Dinamico de Rodilla',
+      icon: '⚠️',
+      reliability: 'Screening observacional: especificidad aceptable, sensibilidad limitada. Video 2D menor precision que 3D.',
+      validity: 'Hewett et al.: predictor significativo de lesion ACL. Meta-analisis 2024: menor activacion gluteo medio + mayor activacion aductores en sujetos con DKV.',
+      clinical: 'Si se observa valgo consistente: fortalecer gluteo medio, control motor, evaluar biomecanica completa.',
+      refs: [
+        {t:'Muscle activation in DKV during squats: meta-analysis',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC11331804/',a:'PMC 2024'},
+        {t:'Reliability and Validity of Observational Screening for DKV',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC3525653/',a:'PMC 2012'}
+      ]
+    },
+    grip: {
+      title: 'Fuerza de Prension (Grip)',
+      icon: '✊',
+      reliability: 'Biomarcador indispensable. ≥3 meta-analisis confirman asociacion con mortalidad.',
+      validity: 'HR por cada 5kg de reduccion: mortalidad total 1.16, CV 1.17, no-CV 1.17. Estudio PURE (Lancet, n=139,691). Evidencia Clase II (n=34 estudios, n=1,855,817).',
+      clinical: 'Sarcopenia: <26kg hombres, <16kg mujeres. Relacion dosis-respuesta inversa entre 26-50kg.',
+      refs: [
+        {t:'Prognostic value of grip strength (PURE study)',u:'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(14)62000-6/abstract',a:'Leong et al., Lancet'},
+        {t:'Grip Strength: An Indispensable Biomarker For Older Adults',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6778477/',a:'PMC 2019'}
+      ]
+    },
+    hipRot: {
+      title: 'Rotaciones de Cadera / Version Femoral',
+      icon: '🔄',
+      reliability: 'RI cadera: validez concurrente R=0.787, ICC 0.889 para predecir anteversion femoral. RE no adecuada para predecir anteversion.',
+      validity: 'Diferencia ≥20° entre RI y RE sugiere version femoral anormal. Ratio RI/RE 3:1 → sospecha de version alterada.',
+      clinical: 'Anteversion: evitar sumo deadlift. Retroversion: tolera sumo y stance ancho. Considerar version al prescribir ejercicio.',
+      refs: [
+        {t:'Clinical Tests to Determine Femoral Version Category',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6353568/',a:'PMC 2019'},
+        {t:'Effects of femoral anteversion on ACL injury and knee biomechanics',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC9072613/',a:'PMC 2022'}
+      ]
+    },
+    chairStand: {
+      title: '30s Chair Stand',
+      icon: '🪑',
+      reliability: 'Fiable y valido. Validez de criterio vs leg press: r=0.77 (global), r=0.78 (H), r=0.71 (M).',
+      validity: 'Rikli & Jones 1999, n=7,183 adultos 60-94 anos. CDC STEADI Initiative. Validado en multiples poblaciones.',
+      refs: [
+        {t:'30-s chair-stand test as a measure of lower body strength',u:'https://pubmed.ncbi.nlm.nih.gov/10380242/',a:'Rikli & Jones 1999'}
+      ]
+    },
+    sitToStand: {
+      title: '5x Sit-to-Stand',
+      icon: '⏱️',
+      reliability: 'ICC excelente, SEM baja. Reproducible independientemente de caracteristicas del individuo.',
+      validity: 'Evalua fuerza MMII + equilibrio + control postural. Cutoffs: <12s normal, 12-15s riesgo moderado, >15s riesgo alto caidas.',
+      refs: [
+        {t:'Optimal procedure for FTSST among older adults: Systematic review',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC10313281/',a:'PMC 2023'}
+      ]
+    },
+    rfm: {
+      title: 'RFM (Relative Fat Mass)',
+      icon: '📊',
+      reliability: 'Validado vs DXA (Scientific Reports, n=12,581). AUC superior a IMC para dislipidemia y sindrome metabolico.',
+      validity: 'Correlaciona mas con masa grasa y menos con masa muscular que IMC. Predictor robusto de IC, enfermedad cardiometabolica y mortalidad.',
+      clinical: 'No requiere bascula. Obesidad: >25% H, >35% M. Solo necesita cinta metrica (cintura + altura).',
+      refs: [
+        {t:'RFM as new estimator of whole-body fat percentage',u:'https://www.nature.com/articles/s41598-018-29362-1',a:'Woolcott & Bergman 2018'},
+        {t:'RFM is better predictor of dyslipidemia and metabolic syndrome than BMI',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6779840/',a:'PMC 2019'}
+      ]
+    },
+    cintura: {
+      title: 'Perimetro de Cintura',
+      icon: '📏',
+      reliability: 'Consenso IAS/ICCR: signo vital en practica clinica. HR 1.15 mortalidad CV por cada DE de aumento.',
+      validity: 'Waist-to-height ratio superior a IMC para detectar enfermedad CV y mortalidad. Combinar con RFM para mejor prediccion.',
+      clinical: 'Riesgo aumentado: ≥80cm M, ≥90cm H. Riesgo alto: ≥88cm M, ≥102cm H.',
+      refs: [
+        {t:'Waist circumference as vital sign: IAS/ICCR Consensus',u:'https://www.nature.com/articles/s41574-019-0310-7',a:'Nature Rev Endocrinol 2019'}
+      ]
+    },
+    respRate: {
+      title: 'Frecuencia Respiratoria',
+      icon: '🫁',
+      reliability: 'Normal: 12-20 resp/min. FR es el signo vital mas sensible para detectar paciente critico.',
+      validity: 'FR elevada: mejor predictor de parada cardiaca vs otros signos vitales. FR >25 o <12: preocupante.',
+      clinical: 'FR baja en reposo = buena regulacion autonomica. FR alta = estres cronico, patron respiratorio disfuncional, descondicionamiento.',
+      refs: [
+        {t:'Physiology, Respiratory Rate',u:'https://www.ncbi.nlm.nih.gov/books/NBK537306/',a:'StatPearls/NCBI'},
+        {t:'Importance of Respiratory Rate Monitoring: Healthcare to Sport',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC7665156/',a:'PMC 2020'}
+      ]
+    },
+    toeTouch: {
+      title: 'Toe Touch Test',
+      icon: '🙇',
+      reliability: 'Test-retest r=0.88-0.97. Alta reproducibilidad.',
+      validity: 'Validez MODERADA para isquiotibiales. Validez BAJA para flexion lumbar — mide cadena posterior global, no movilidad vertebral aislada.',
+      clinical: 'En enfoque PRI/IKN: indicador de posicion pelvica y capacidad de nutacion/contranutacion, no test de flexibilidad aislado.',
+      refs: [
+        {t:'Criterion-Related Validity of Sit-and-Reach: Meta-Analysis',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC3918544/',a:'PMC 2014'}
+      ]
+    },
+    bolt: {
+      title: 'BOLT Score (Apnea)',
+      icon: '💨',
+      reliability: 'PRECAUCION: No validado cientificamente. Subjetivo y submaximal.',
+      validity: 'Frontiers 2024: BOLT no asociado con VO2max, tiempo de resistencia ni niveles de ejercicio en adultos activos. Refleja tolerancia CO2, no capacidad aerobica.',
+      clinical: 'Usar como seguimiento intra-sujeto, no como valor absoluto. Complementar con FR en reposo.',
+      refs: [
+        {t:'BOLT is not associated with exercise performance',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC11406178/',a:'Frontiers Physiol 2024'}
+      ]
+    }
+  };
+
+  const pathEvidence = {
+    tendinopatia: {
+      title: 'Tendinopatia — Protocolo de Carga',
+      icon: '🔧',
+      text: 'ISOs producen analgesia inmediata en tendinopatia rotuliana (Rio 2015). HSR y excentrico: resultados similares a largo plazo, pero HSR mayor satisfaccion y cambios bioquimicos (aumento colageno, reduccion glicacion). Excentrico aislado NO superior.',
+      protocol: 'Fase aguda: ISOs pesados (analgesia). Fase subaguda: HSR progresivo. Evitar plios en fase aguda.',
+      refs: [
+        {t:'Isometric exercise induces analgesia in patellar tendinopathy',u:'https://pubmed.ncbi.nlm.nih.gov/25979840/',a:'Rio et al. 2015, BJSM'},
+        {t:'HSR vs Eccentric for Achilles Tendinopathy',u:'https://pubmed.ncbi.nlm.nih.gov/26018970/',a:'Beyer et al. 2015'}
+      ]
+    },
+    condromalacia: {
+      title: 'Condromalacia / Dolor Femoropatelar',
+      icon: '🦴',
+      text: 'Minimo 20-40 reps totales/sesion. ISOs cuadriceps prometen para alivio dolor. Evidencia VMO selectivo: limitada (solo 2 estudios positivos, sin mejora de sintomas demostrada).',
+      protocol: 'Primera linea: carga excentrica ± adjuntos. ISOs y HSR: prometedores, necesitan mas RCTs.',
+      refs: [
+        {t:'Systematic review of RCTs on exercise for patellofemoral pain',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC3215347/',a:'PMC 2011'}
+      ]
+    },
+    gird: {
+      title: 'GIRD (Deficit Rotacion Interna Glenohumeral)',
+      icon: '🏐',
+      text: 'Evidencia fuerte: GIRD implicado en lesiones SLAP, roturas labrum, bursitis subacromial, roturas manguito rotador.',
+      protocol: 'Conservador: sleeper stretch modificado + cross-body stretch modificado mejoran RI significativamente. Distinguir GIRD capsular (tratable) vs retroversion humeral (osea, no tratable con estiramiento).',
+      refs: [
+        {t:'Treatment of GIRD in the general population with shoulder pain',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC10519522/',a:'PMC 2023'},
+        {t:'GIRD: pathologic, clinical, diagnostic, therapeutic characteristics',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC11615455/',a:'PMC 2024'}
+      ]
+    }
+  };
+
+  // Determine which test evidence to show based on filled inputs
+  const testsToShow = [];
+  if (isa && isa !== 'no_medido') testsToShow.push('isa');
+  if (document.getElementById('toeTouch').value) testsToShow.push('toeTouch');
+  if (document.getElementById('squat').value) testsToShow.push('squat');
+  // Check for valgo observation
+  let hasValgo = false;
+  document.querySelectorAll('.checkbox-group label.checked input').forEach(cb => { if (cb.value === 'valgo') hasValgo = true; });
+  if (hasValgo) testsToShow.push('valgo');
+  if (document.getElementById('slrIzq').value || document.getElementById('slrDer').value) testsToShow.push('aslr');
+  if (document.getElementById('oberIzq').value || document.getElementById('oberDer').value) testsToShow.push('ober');
+  if (document.getElementById('femRIIzq').value || document.getElementById('femRIDer').value) testsToShow.push('hipRot');
+  if (document.getElementById('shIRIzq').value || document.getElementById('shFlexIzq').value) {} // shoulder covered in GIRD pathology
+  if (document.getElementById('gripIzq').value || document.getElementById('gripDer').value) testsToShow.push('grip');
+  if (document.getElementById('chairStand30').value) testsToShow.push('chairStand');
+  if (document.getElementById('sitToStand5').value) testsToShow.push('sitToStand');
+  if (document.getElementById('respMin').value) testsToShow.push('respRate');
+  if (document.getElementById('apnea').value) testsToShow.push('bolt');
+  // Always show RFM and cintura if measured
+  const altV = document.getElementById('altura').value;
+  const cinV = document.getElementById('cintura').value;
+  if (altV && cinV) { testsToShow.push('rfm'); testsToShow.push('cintura'); }
+
+  if (testsToShow.length === 0) { html += '<p style="opacity:.6">Completa algun test para ver la evidencia correspondiente.</p></div>'; return html; }
+
+  testsToShow.forEach(key => {
+    const ev = evidence[key];
+    if (!ev) return;
+    html += '<div class="exercise-card" style="margin:6px 0;padding:8px 12px;border-left:3px solid #2c3e50">';
+    html += '<strong>' + ev.icon + ' ' + ev.title + '</strong>';
+    html += '<div style="font-size:12px;margin-top:4px"><span style="color:var(--accent)">Fiabilidad:</span> ' + ev.reliability + '</div>';
+    html += '<div style="font-size:12px"><span style="color:var(--part2)">Validez:</span> ' + ev.validity + '</div>';
+    if (ev.clinical) html += '<div style="font-size:12px"><span style="color:var(--warning)">Clinico:</span> ' + ev.clinical + '</div>';
+    html += '<div style="font-size:11px;margin-top:3px;opacity:.7">';
+    ev.refs.forEach((r,i) => {
+      html += (i>0?' | ':'') + '<a href="' + r.u + '" target="_blank" style="color:var(--accent)">' + r.a + '</a>';
+    });
+    html += '</div></div>';
+  });
+
+  // Pathology evidence
+  let paths = [];
+  document.querySelectorAll('[id^="path"] input:checked').forEach(cb => paths.push(cb.value));
+  const pathsToShow = [];
+  if (paths.some(p => p.includes('tendin'))) pathsToShow.push('tendinopatia');
+  if (paths.some(p => p.includes('condromalacia') || p.includes('femoropatelar'))) pathsToShow.push('condromalacia');
+  // Check GIRD condition
+  const shIRI = document.getElementById('shIRIzq').value;
+  const shIRD = document.getElementById('shIRDer').value;
+  const shERI = document.getElementById('shERIzq').value;
+  const shERD = document.getElementById('shERDer').value;
+  const irVals = {'menor_40':35,'40_50':45,'50_60':55,'60_70':65,'70_80':75,'80_90':85,'mayor_90':95};
+  const erVals = {'menor_40':35,'40_50':45,'50_60':55,'60_70':65,'70_80':75,'80_90':85,'mayor_90':95};
+  const irL = irVals[shIRI]||0, irR = irVals[shIRD]||0, erL = erVals[shERI]||0, erR = erVals[shERD]||0;
+  if ((irL < 70 && erL > 80) || (irR < 70 && erR > 80)) pathsToShow.push('gird');
+
+  if (pathsToShow.length > 0) {
+    html += '<div style="margin-top:12px;font-weight:600;color:#2c3e50;font-size:13px">Evidencia por Patologia</div>';
+    pathsToShow.forEach(key => {
+      const pev = pathEvidence[key];
+      if (!pev) return;
+      html += '<div class="exercise-card" style="margin:6px 0;padding:8px 12px;border-left:3px solid var(--warning)">';
+      html += '<strong>' + pev.icon + ' ' + pev.title + '</strong>';
+      html += '<div style="font-size:12px;margin-top:4px">' + pev.text + '</div>';
+      html += '<div style="font-size:12px;color:var(--part2)"><strong>Protocolo:</strong> ' + pev.protocol + '</div>';
+      html += '<div style="font-size:11px;margin-top:3px;opacity:.7">';
+      pev.refs.forEach((r,i) => {
+        html += (i>0?' | ':'') + '<a href="' + r.u + '" target="_blank" style="color:var(--accent)">' + r.a + '</a>';
+      });
+      html += '</div></div>';
+    });
+  }
+
+  html += '</div>';
+  return html;
+}
 
 // ===== SESSION NOTES =====
 function addNota() {
@@ -1600,6 +2518,15 @@ function generateResults() {
     html += '</div>';
   }
 
+  // Concordance checker (verify interpretation)
+  html += buildConcordance(isa);
+
+  // Recommendation engine
+  html += buildRecommendations(isa);
+
+  // Scientific evidence
+  html += buildEvidenceSection(isa);
+
   // Pain
   let pains = [];
   const painIds = ['painLumbar','painDorsal','painRodIzq','painRodDer','painHomIzq','painHomDer','painCervical','painCadIzq','painCadDer','painTobIzq','painTobDer'];
@@ -1646,13 +2573,24 @@ function generateResults() {
   if (apnea) optionals.push('Apnea: ' + apnea + 's' + (parseInt(apnea) < 20 ? ' (BAJO)' : parseInt(apnea) <= 40 ? ' (normal)' : ' (BUENO)'));
   if (gripI || gripD) {
     var gripSexo = sexo || document.getElementById('sexo').value;
-    var gripRef = gripSexo === 'Mujer' ? {bajo:20,normal:30} : {bajo:30,normal:40};
+    var gripRef = gripSexo === 'F' ? {bajo:20,normal:30} : {bajo:30,normal:40};
     var evalGrip = function(v) { if(!v) return '-'; v=parseInt(v); return v<gripRef.bajo?'BAJO':v<gripRef.normal?'normal':'BUENO'; };
     optionals.push('Grip: Izq ' + (gripI||'-') + 'kg (' + evalGrip(gripI) + ') / Der ' + (gripD||'-') + 'kg (' + evalGrip(gripD) + ')');
   }
   if (flex) optionals.push('Flexiones: ' + flex);
   if (planch) optionals.push('Plancha: ' + planch + 's');
   if (cmj) optionals.push('CMJ: ' + cmj + ' cm');
+  // Elderly tests
+  const cs30 = document.getElementById('chairStand30').value;
+  const sts5 = document.getElementById('sitToStand5').value;
+  if (cs30) {
+    const csEl = document.getElementById('chair-interp');
+    optionals.push('30s Chair Stand: ' + cs30 + ' reps' + (csEl && csEl.classList.contains('show') ? ' — ' + (csEl.classList.contains('alert') ? 'POR DEBAJO' : csEl.classList.contains('warning') ? 'LIMITE' : 'NORMAL/BUENO') : ''));
+  }
+  if (sts5) {
+    const stsVal = parseFloat(sts5);
+    optionals.push('5x Sit-to-Stand: ' + sts5 + 's' + (stsVal > 15 ? ' — RIESGO ALTO caidas' : stsVal > 12 ? ' — Riesgo moderado' : ' — Normal'));
+  }
   if (optionals.length > 0) {
     html += '<div class="result-category"><h3>Tests opcionales</h3>';
     optionals.forEach(o => { html += '<div class="exercise-card">' + o + '</div>'; });
@@ -1728,8 +2666,8 @@ function copyAll() {
   if (paths.length) text += '\n--- PATOLOGIAS ---\n' + paths.join(', ') + '\n';
 
   const obs = document.getElementById('observaciones').value; if (obs) text += '\n--- OBS ---\n' + obs + '\n';
-  const respMin = document.getElementById('respMin').value, apnea = document.getElementById('apnea').value, gripI = document.getElementById('gripIzq').value, gripD = document.getElementById('gripDer').value, flex = document.getElementById('flexiones').value, planch = document.getElementById('plancha').value, cmj = document.getElementById('cmjAltura').value;
-  if (respMin||apnea||gripI||gripD||flex||planch||cmj) {
+  const respMin = document.getElementById('respMin').value, apnea = document.getElementById('apnea').value, gripI = document.getElementById('gripIzq').value, gripD = document.getElementById('gripDer').value, flex = document.getElementById('flexiones').value, planch = document.getElementById('plancha').value, cmj = document.getElementById('cmjAltura').value, cs30v = document.getElementById('chairStand30').value, sts5v = document.getElementById('sitToStand5').value;
+  if (respMin||apnea||gripI||gripD||flex||planch||cmj||cs30v||sts5v) {
     text += '\n--- TESTS ---\n';
     if (respMin) text += 'Resp: ' + respMin + '/min\n';
     if (apnea) text += 'Apnea: ' + apnea + 's\n';
@@ -1737,11 +2675,39 @@ function copyAll() {
     if (flex) text += 'Flexiones: ' + flex + '\n';
     if (planch) text += 'Plancha: ' + planch + 's\n';
     if (cmj) text += 'CMJ: ' + cmj + 'cm\n';
+    var cs30t = document.getElementById('chairStand30').value;
+    var sts5t = document.getElementById('sitToStand5').value;
+    if (cs30t) text += '30s Chair Stand: ' + cs30t + ' reps\n';
+    if (sts5t) text += '5x Sit-to-Stand: ' + sts5t + 's\n';
   }
 
   let exSet = new Set();
   document.querySelectorAll('.interpretation.show').forEach(el => { const m = el.innerText.match(/Ejercicios:\s*(.+)/); if (m) m[1].split(',').forEach(e => exSet.add(e.trim())); });
   if (exSet.size > 0) { text += '\n--- EJERCICIOS ---\n'; let i = 1; exSet.forEach(e => { text += i + '. ' + e + '\n'; i++; }); }
+
+  // Concordance + Compensation + Program
+  if (isa && isa !== 'no_medido') {
+    text += '\n--- ANALISIS AVANZADO ---\n';
+    var comp = determineCompensation(isa);
+    var compLabels = {tertiary:'Terciario',secondary:'Secundario',primary:'Primario'};
+    text += 'Nivel compensacion: ' + (compLabels[comp.level]||'?') + ' (T:' + comp.tertiary + ' S:' + comp.secondary + ' P:' + comp.primary + ')\n';
+    var isaKey = (isa === 'estrecho' || isa === 'asimetrico') ? 'Narrow' : 'Wide';
+    var templateKey = (comp.level === 'tertiary' ? 'Tertiary' : comp.level === 'secondary' ? 'Secondary' : 'Primary') + ' ' + isaKey;
+    text += 'Programa sugerido: ' + templateKey + '\n';
+
+    // Quick concordance summary
+    var expected = isaKey === 'Narrow' ?
+      {ober:'positivo',slr:'~50',ktc:'~120',squat:'profunda',shIR:'<70',shFlex:'>160'} :
+      {ober:'negativo',slr:'>70',ktc:'<110',squat:'paralela',shIR:'>70',shFlex:'100-120'};
+    text += 'Concordancia ISA ' + isaKey + ' — Expectativas: Ober ' + expected.ober + ', SLR ' + expected.slr + ', KTC ' + expected.ktc + ', Squat ' + expected.squat + ', ShIR ' + expected.shIR + ', ShFlex ' + expected.shFlex + '\n';
+
+    // Asymmetries
+    var asymm = analyzeAsymmetries();
+    if (asymm.length > 0) {
+      text += '\nAsimetrias detectadas:\n';
+      asymm.forEach(function(a) { text += '• ' + a.text.replace(/<[^>]+>/g,'') + '\n'; });
+    }
+  }
 
   if (notas.length > 0) { text += '\n--- NOTAS ---\n'; notas.forEach(n => { text += '[' + n.fecha + '] ' + (n.texto||'') + (n.cambios ? ' ['+n.cambios+']' : '') + '\n'; }); }
 
@@ -1766,7 +2732,19 @@ function exportCSV() {
   const otra = document.getElementById('otraPatologia').value; if (otra) paths.push(otra);
   let notasStr = notas.map(n => '[' + n.fecha + '] ' + (n.texto||'') + (n.cambios ? ' ['+n.cambios+']' : '')).join(' | ');
 
-  const headers = ['Nombre','Fecha','Eval','Edad','Sexo','Objetivo','Actividad_Previa','Sueno_Calidad','Sueno_Horas','Despertares','Estres','ISA','ISA_Grados','ISA_Izq','ISA_Der','Peso_kg','Altura_cm','Cintura_cm','Cadera_cm','RFM','Brazo_Izq','Brazo_Der','Muslo_Izq','Muslo_Der','Plic_Abdom','Plic_Triceps','Plic_Supra','Toe_Touch','Squat','Squat_Obs','SLR_Izq','SLR_Der','KTC_Izq','KTC_Der','Ober_Izq','Ober_Der','FemRI_Izq','FemRI_Der','FemRE_Izq','FemRE_Der','ShIR_Izq','ShIR_Der','ShER_Izq','ShER_Der','ShFlex_Izq','ShFlex_Der','ShABD_Izq','ShABD_Der','ShADD_Izq','ShADD_Der','D_Lumbar','D_Dorsal','D_Rod_Izq','D_Rod_Der','D_Hom_Izq','D_Hom_Der','D_Cervical','D_Cad_Izq','D_Cad_Der','D_Tob_Izq','D_Tob_Der','Patologias','Resp','Apnea','Grip_Izq','Grip_Der','Flexiones','Plancha','CMJ_cm','Observaciones','Notas'];
+  // Compute compensation & program for CSV
+  let csvComp = '', csvPrograma = '', csvAsimetrias = '';
+  if (isa && isa !== 'no_medido') {
+    var compCSV = determineCompensation(isa);
+    var compLabelsCSV = {tertiary:'Terciario',secondary:'Secundario',primary:'Primario'};
+    csvComp = (compLabelsCSV[compCSV.level]||'?') + ' (T:' + compCSV.tertiary + ' S:' + compCSV.secondary + ' P:' + compCSV.primary + ')';
+    var isaKeyCSV = (isa === 'estrecho' || isa === 'asimetrico') ? 'Narrow' : 'Wide';
+    csvPrograma = (compCSV.level === 'tertiary' ? 'Tertiary' : compCSV.level === 'secondary' ? 'Secondary' : 'Primary') + ' ' + isaKeyCSV;
+    var asymmCSV = analyzeAsymmetries();
+    csvAsimetrias = asymmCSV.map(function(a){ return a.text.replace(/<[^>]+>/g,'').replace(/\n/g,' '); }).join(' | ');
+  }
+
+  const headers = ['Nombre','Fecha','Eval','Edad','Sexo','Objetivo','Actividad_Previa','Sueno_Calidad','Sueno_Horas','Despertares','Estres','ISA','ISA_Grados','ISA_Izq','ISA_Der','Peso_kg','Altura_cm','Cintura_cm','Cadera_cm','RFM','Brazo_Izq','Brazo_Der','Muslo_Izq','Muslo_Der','Plic_Abdom','Plic_Triceps','Plic_Supra','Toe_Touch','Squat','Squat_Obs','SLR_Izq','SLR_Der','KTC_Izq','KTC_Der','Ober_Izq','Ober_Der','FemRI_Izq','FemRI_Der','FemRE_Izq','FemRE_Der','ShIR_Izq','ShIR_Der','ShER_Izq','ShER_Der','ShFlex_Izq','ShFlex_Der','ShABD_Izq','ShABD_Der','ShADD_Izq','ShADD_Der','D_Lumbar','D_Dorsal','D_Rod_Izq','D_Rod_Der','D_Hom_Izq','D_Hom_Der','D_Cervical','D_Cad_Izq','D_Cad_Der','D_Tob_Izq','D_Tob_Der','Patologias','Resp','Apnea','Grip_Izq','Grip_Der','Flexiones','Plancha','CMJ_cm','ChairStand30','SitToStand5','Compensacion','Programa','Asimetrias','Observaciones','Notas'];
   const values = [
     name, date, document.getElementById('evalNumber').value, document.getElementById('edad').value, sexo, document.getElementById('objetivo').value,
     document.getElementById('actividadPrevia').value, document.getElementById('sueno').value, document.getElementById('horasSueno').value, document.getElementById('despertares').value, document.getElementById('estres').value,
@@ -1789,6 +2767,113 @@ function exportCSV() {
     paths.join('; '), document.getElementById('respMin').value, document.getElementById('apnea').value,
     document.getElementById('gripIzq').value, document.getElementById('gripDer').value,
     document.getElementById('flexiones').value, document.getElementById('plancha').value, document.getElementById('cmjAltura').value,
+    document.getElementById('chairStand30').value, document.getElementById('sitToStand5').value,
+    csvComp, csvPrograma, csvAsimetrias,
+    document.getElementById('observaciones').value, notasStr
+  ];
+  const esc = v => { const s = String(v||''); return (s.includes(',')||s.includes('"')||s.includes('\n')||s.includes(';')) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const csv = headers.map(esc).join(',') + '\n' + values.map(esc).join(',') + '\n';
+  const blob = new Blob(['\xEF\xBB\xBF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'valoracion_' + name.replace(/\s+/g,'_') + '_' + date + '.csv';
+  a.click();
+  showToast('CSV descargado');
+}
+
+function copyParaSheet() {
+  var g = function(id) { var e = document.getElementById(id); return e ? (e.value || '') : ''; };
+  var date = g('fecha') || new Date().toLocaleDateString('es-ES');
+  var isaRes = g('isaResult') || g('isa');
+  var toeRes = g('toeTouch');
+  var sqRes = g('squatResult') || g('squat');
+  var rows = [
+    date,
+    g('peso'),
+    g('altura'),
+    g('cintura'),
+    g('cadera'),
+    '', // RFM - calcular en Sheet
+    '', // ICC - calcular en Sheet
+    g('brazoIzq'),
+    g('brazoDer'),
+    g('musloIzq'),
+    g('musloDer'),
+    '', // separador
+    isaRes,
+    toeRes,
+    sqRes,
+    g('aslrIzq'),
+    g('aslrDer'),
+    g('ktcIzq'),
+    g('ktcDer'),
+    g('oberIzq'),
+    g('oberDer'),
+    g('femRIIzq'),
+    g('femRIDer'),
+    g('femREIzq'),
+    g('femREDer'),
+    '', // separador
+    g('shIRIzq'),
+    g('shIRDer'),
+    g('shERIzq'),
+    g('shERDer'),
+    g('shFlexIzq'),
+    g('shFlexDer'),
+    '', // separador
+    g('painLumbar'),
+    g('painDorsal'),
+    g('painRodIzq'),
+    g('painRodDer'),
+    g('painHomIzq'),
+    g('painHomDer'),
+    g('painCervical'),
+    g('painCadIzq'),
+    g('painCadDer'),
+    g('painTobIzq'),
+    g('painTobDer'),
+    '', // separador
+    g('sueno'),
+    g('estres'),
+    g('respMin'),
+    g('apnea'),
+    g('gripIzq'),
+    g('gripDer'),
+    g('flexiones'),
+    g('plancha'),
+    g('cmjAltura'),
+    g('chairStand30'),
+    g('sitToStand5')
+  ];
+  var text = rows.join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Copiado. Selecciona celda B30 en la Sheet, pega (Ctrl+V) y los datos se reparten en la columna.');
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Copiado. Pega en celda B30 de la Sheet.');
+  });
+}
+</script>
+</body>
+</html>Id('femREDer').value,
+    document.getElementById('shIRIzq').value, document.getElementById('shIRDer').value, document.getElementById('shERIzq').value, document.getElementById('shERDer').value,
+    document.getElementById('shFlexIzq').value, document.getElementById('shFlexDer').value,
+    document.getElementById('shABDIzq').value, document.getElementById('shABDDer').value, document.getElementById('shADDIzq').value, document.getElementById('shADDDer').value,
+    document.getElementById('painLumbar').value, document.getElementById('painDorsal').value,
+    document.getElementById('painRodIzq').value, document.getElementById('painRodDer').value,
+    document.getElementById('painHomIzq').value, document.getElementById('painHomDer').value, document.getElementById('painCervical').value,
+    document.getElementById('painCadIzq').value, document.getElementById('painCadDer').value,
+    document.getElementById('painTobIzq').value, document.getElementById('painTobDer').value,
+    paths.join('; '), document.getElementById('respMin').value, document.getElementById('apnea').value,
+    document.getElementById('gripIzq').value, document.getElementById('gripDer').value,
+    document.getElementById('flexiones').value, document.getElementById('plancha').value, document.getElementById('cmjAltura').value,
+    document.getElementById('chairStand30').value, document.getElementById('sitToStand5').value,
+    csvComp, csvPrograma, csvAsimetrias,
     document.getElementById('observaciones').value, notasStr
   ];
   const esc = v => { const s = String(v||''); return (s.includes(',')||s.includes('"')||s.includes('\n')||s.includes(';')) ? '"'+s.replace(/"/g,'""')+'"' : s; };
@@ -1861,7 +2946,9 @@ function copyParaSheet() {
     g('gripDer'),
     g('flexiones'),
     g('plancha'),
-    g('cmjAltura')
+    g('cmjAltura'),
+    g('chairStand30'),
+    g('sitToStand5')
   ];
   var text = rows.join('\n');
   navigator.clipboard.writeText(text).then(function() {
