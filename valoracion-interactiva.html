@@ -486,6 +486,8 @@ select:focus, input:focus, textarea:focus {
             <option value="70-80">70-80° (objetivo)</option>
             <option value="90+">90°+</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romAslrIzq" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romAslrIzq','horiz','Supino. Apoya el movil en la <b>tibia</b> de la pierna que elevas, con la rodilla recta.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">Derecha</label>
@@ -496,6 +498,8 @@ select:focus, input:focus, textarea:focus {
             <option value="70-80">70-80° (objetivo)</option>
             <option value="90+">90°+</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romAslrDer" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romAslrDer','horiz','Supino. Apoya el movil en la <b>tibia</b> de la pierna que elevas, con la rodilla recta.')">Medir</button></div>
         </div>
       </div>
       <div id="slr-interp" class="interpretation"></div>
@@ -513,6 +517,8 @@ select:focus, input:focus, textarea:focus {
             <option value="120">~120° (objetivo)</option>
             <option value="130+">130°+</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romKtcIzq" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romKtcIzq','horiz','Supino. Apoya el movil en el <b>muslo</b> de la pierna que llevas al pecho.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">Derecha</label>
@@ -523,6 +529,8 @@ select:focus, input:focus, textarea:focus {
             <option value="120">~120° (objetivo)</option>
             <option value="130+">130°+</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romKtcDer" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romKtcDer','horiz','Supino. Apoya el movil en el <b>muslo</b> de la pierna que llevas al pecho.')">Medir</button></div>
         </div>
       </div>
       <div id="ktc-interp" class="interpretation"></div>
@@ -558,19 +566,19 @@ select:focus, input:focus, textarea:focus {
       <div class="row">
         <div class="field">
           <label class="sub-label">RI Izq</label>
-          <input type="number" id="femRIIzq" placeholder="°" min="0" max="90">
+          <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="femRIIzq" placeholder="°" min="0" max="90"><button type="button" class="mbtn" onclick="abrirIncl('femRIIzq','vert','Prono, rodilla a 90°. Apoya el movil en la <b>tibia</b>, cara interna, y deja caer la pierna.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">RI Der</label>
-          <input type="number" id="femRIDer" placeholder="°" min="0" max="90">
+          <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="femRIDer" placeholder="°" min="0" max="90"><button type="button" class="mbtn" onclick="abrirIncl('femRIDer','vert','Prono, rodilla a 90°. Apoya el movil en la <b>tibia</b>, cara interna, y deja caer la pierna.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">RE Izq</label>
-          <input type="number" id="femREIzq" placeholder="°" min="0" max="90">
+          <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="femREIzq" placeholder="°" min="0" max="90"><button type="button" class="mbtn" onclick="abrirIncl('femREIzq','vert','Prono, rodilla a 90°. Apoya el movil en la <b>tibia</b>, cara interna, y deja caer la pierna.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">RE Der</label>
-          <input type="number" id="femREDer" placeholder="°" min="0" max="90">
+          <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="femREDer" placeholder="°" min="0" max="90"><button type="button" class="mbtn" onclick="abrirIncl('femREDer','vert','Prono, rodilla a 90°. Apoya el movil en la <b>tibia</b>, cara interna, y deja caer la pierna.')">Medir</button></div>
         </div>
       </div>
     </div>
@@ -594,6 +602,8 @@ select:focus, input:focus, textarea:focus {
             <option value="menos70">< 70°</option>
             <option value="70+">70°+ (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShIRIzq" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShIRIzq','vert','Supino, brazo a 90° de abduccion y codo a 90°. Movil en el <b>antebrazo</b>.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">Derecha</label>
@@ -602,6 +612,8 @@ select:focus, input:focus, textarea:focus {
             <option value="menos70">< 70°</option>
             <option value="70+">70°+ (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShIRDer" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShIRDer','vert','Supino, brazo a 90° de abduccion y codo a 90°. Movil en el <b>antebrazo</b>.')">Medir</button></div>
         </div>
       </div>
       <div id="shIR-interp" class="interpretation"></div>
@@ -617,6 +629,8 @@ select:focus, input:focus, textarea:focus {
             <option value="menos90">< 90°</option>
             <option value="90+">90°+ (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShERIzq" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShERIzq','vert','Supino, brazo a 90° de abduccion y codo a 90°. Movil en el <b>antebrazo</b>.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">Derecha</label>
@@ -625,6 +639,8 @@ select:focus, input:focus, textarea:focus {
             <option value="menos90">< 90°</option>
             <option value="90+">90°+ (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShERDer" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShERDer','vert','Supino, brazo a 90° de abduccion y codo a 90°. Movil en el <b>antebrazo</b>.')">Medir</button></div>
         </div>
       </div>
       <div id="shER-interp" class="interpretation"></div>
@@ -642,6 +658,8 @@ select:focus, input:focus, textarea:focus {
             <option value="120-160">120-160°</option>
             <option value="160+">160-180° (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShFlexIzq" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShFlexIzq','horiz','Supino, espalda pegada al suelo. Movil en el <b>humero</b>, cara externa.')">Medir</button></div>
         </div>
         <div class="field">
           <label class="sub-label">Derecha</label>
@@ -652,6 +670,8 @@ select:focus, input:focus, textarea:focus {
             <option value="120-160">120-160°</option>
             <option value="160+">160-180° (objetivo)</option>
           </select>
+        <div class="hint" style="margin:6px 0 3px">Grados medidos (opcional)</div>
+        <div style="display:flex;gap:6px"><input style="flex:1" type="number" id="romShFlexDer" placeholder="grados" min="0" max="180"><button type="button" class="mbtn" onclick="abrirIncl('romShFlexDer','horiz','Supino, espalda pegada al suelo. Movil en el <b>humero</b>, cara externa.')">Medir</button></div>
         </div>
       </div>
       <div id="shFlex-interp" class="interpretation"></div>
@@ -1252,9 +1272,11 @@ select:focus, input:focus, textarea:focus {
         <button type="button" onclick="metro(80)">80 &mdash; cardio A</button>
         <button type="button" onclick="metro(100)">100 &mdash; cardio B</button>
         <span class="bpm mbpm">&mdash;</span>
+        <span class="mpulso"></span>
         <button type="button" class="stop" onclick="metro(0)">Parar</button>
       </div>
-      <div class="hint" style="margin:6px 0 0">En iPhone, quita el <b>interruptor de silencio</b> o no sonara.</div>
+      <div class="hint mavi" style="margin:6px 0 0;color:#a8730a"></div>
+      <div class="hint" style="margin:4px 0 0">En iPhone el <b>interruptor de silencio</b> apaga el sonido de las webs. Si no suena, el <b>punto rojo marca el ritmo</b> igual de bien.</div>
     </div>
     <div class="interpretation" id="trx-interp"></div>
     <div class="field" style="margin-top:12px">
@@ -1387,9 +1409,11 @@ select:focus, input:focus, textarea:focus {
         <button type="button" onclick="metro(80)">80 &mdash; cardio A</button>
         <button type="button" onclick="metro(100)">100 &mdash; cardio B</button>
         <span class="bpm mbpm">&mdash;</span>
+        <span class="mpulso"></span>
         <button type="button" class="stop" onclick="metro(0)">Parar</button>
       </div>
-      <div class="hint" style="margin:6px 0 0">En iPhone, quita el <b>interruptor de silencio</b> o no sonara.</div>
+      <div class="hint mavi" style="margin:6px 0 0;color:#a8730a"></div>
+      <div class="hint" style="margin:4px 0 0">En iPhone el <b>interruptor de silencio</b> apaga el sonido de las webs. Si no suena, el <b>punto rojo marca el ritmo</b> igual de bien.</div>
     </div>
     <div class="interpretation" id="cardio-interp"></div>
 
@@ -6581,6 +6605,25 @@ function buildInformeData() {
                nivel:'', nivelTest:tNiv, angulo:vv('trxAngulo')});
     }
 
+    /* Movilidad medida en grados con el inclinometro */
+    var ROM=[['romAslrIzq','rom_aslr_izq','elevación de pierna recta izquierda'],
+             ['romAslrDer','rom_aslr_der','elevación de pierna recta derecha'],
+             ['romKtcIzq','rom_ktc_izq','rodilla al pecho izquierda'],
+             ['romKtcDer','rom_ktc_der','rodilla al pecho derecha'],
+             ['femRIIzq','rom_cadera_ri_izq','rotación interna de cadera izquierda'],
+             ['femRIDer','rom_cadera_ri_der','rotación interna de cadera derecha'],
+             ['femREIzq','rom_cadera_re_izq','rotación externa de cadera izquierda'],
+             ['femREDer','rom_cadera_re_der','rotación externa de cadera derecha'],
+             ['romShIRIzq','rom_hombro_ri_izq','rotación interna de hombro izquierda'],
+             ['romShIRDer','rom_hombro_ri_der','rotación interna de hombro derecha'],
+             ['romShERIzq','rom_hombro_re_izq','rotación externa de hombro izquierda'],
+             ['romShERDer','rom_hombro_re_der','rotación externa de hombro derecha'],
+             ['romShFlexIzq','rom_hombro_flex_izq','flexión de hombro izquierda'],
+             ['romShFlexDer','rom_hombro_flex_der','flexión de hombro derecha']];
+    ROM.forEach(function(r){
+      if(nn(r[0])!==null) ef.push({metrica:r[1], valor:vv(r[0]), unidad:'°', etiqueta:r[2], nivel:''});
+    });
+
     /* Cardiovascular — carga fija, por eso el pulso es comparable */
     var cRit=vv('cardioRitmo');
     if(cRit){
@@ -6770,6 +6813,9 @@ function exportDatosInforme() {
 .metro button.on{background:#4A1520;color:#fff;}
 .metro button.stop{border-color:#a32d2d;color:#a32d2d;}
 .metro .bpm{font-size:22px;font-weight:800;color:#4A1520;min-width:74px;text-align:center;}
+.mpulso{display:inline-block;width:26px;height:26px;border-radius:50%;background:#e6e0dc;
+ border:2px solid #cfc7c0;transition:transform .06s ease-out, background .06s ease-out;}
+.mpulso.on{background:#CC2222;border-color:#CC2222;transform:scale(1.35);}
 #protoModal h3{font-size:17px;margin:0 0 2px;color:#4A1520;}
 #protoModal .pk{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:#CC0000;font-weight:800;margin:14px 0 4px;}
 #protoModal .psay{background:#fdfaf7;border:1.5px solid #d9c9c2;border-radius:8px;padding:11px 13px;font-style:italic;color:#4A1520;font-size:13.5px;}
@@ -6799,8 +6845,8 @@ function exportDatosInforme() {
    <button onclick="cerrarIncl()" style="background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:8px;width:30px;height:30px;font-size:18px;cursor:pointer">&times;</button>
   </div>
   <div style="padding:18px">
-   <div style="font-size:13px;color:#7f8c8d;line-height:1.5;margin-bottom:6px">
-    Apoya el movil en el <b>esternon</b>, pantalla hacia fuera y la parte de arriba del movil hacia la cabeza.
+   <div id="inclGuia" style="font-size:13px;color:#7f8c8d;line-height:1.5;margin-bottom:6px">
+    Apoya el movil en el <b>esternon</b>, pantalla hacia fuera y la parte de arriba hacia la cabeza.
    </div>
    <div class="big" id="inclVal">--</div>
    <div id="inclMsg" style="font-size:13px;color:#a32d2d;text-align:center;min-height:20px;line-height:1.4"></div>
@@ -6820,6 +6866,7 @@ function exportDatosInforme() {
 /* =====================================================================
    BATERIA AVANZADA v3 — inclinometro, protocolos, ratios y semaforos
    ===================================================================== */
+function esc0(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 function _v(id){ var e=document.getElementById(id); if(!e) return ''; return (e.value||'').toString().trim(); }
 function _n(id){ var v=parseFloat(_v(id).replace(',','.')); return isNaN(v)?null:v; }
 function _pinta(id, html, color){
@@ -6888,9 +6935,37 @@ function igualarFilas(){
   else arranca();
 })();
 
-/* ---------------- METRONOMO ---------------- */
-var __ctx=null, __metroId=null, __metroBpm=0;
-function __metroPinta(txt, bpm){
+/* ---------------- METRONOMO ----------------
+   iOS es exigente: hay que crear y desbloquear el AudioContext DENTRO del
+   toque, esperar a que arranque, y programar los clics con el reloj de audio
+   (setInterval solo no basta en movil). Ademas el interruptor de silencio del
+   iPhone silencia el audio web, asi que hay tambien un metronomo visual.   */
+var __ctx=null, __metroBpm=0, __schedId=null, __visId=null, __nextTick=0;
+
+function __audioListo(){
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return null;
+  if(!__ctx){ try{ __ctx = new AC(); }catch(e){ return null; } }
+  /* buffer de 1 muestra: el truco clasico para desbloquear iOS */
+  try{
+    var b=__ctx.createBuffer(1,1,22050), s=__ctx.createBufferSource();
+    s.buffer=b; s.connect(__ctx.destination);
+    if(s.start) s.start(0); else if(s.noteOn) s.noteOn(0);
+  }catch(e){}
+  return __ctx;
+}
+function __clic(t){
+  try{
+    var o=__ctx.createOscillator(), g=__ctx.createGain();
+    o.frequency.value=1100; o.type='square';
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.5,t+0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+    o.connect(g); g.connect(__ctx.destination);
+    o.start(t); o.stop(t+0.06);
+  }catch(e){}
+}
+function __metroPinta(txt, bpm, aviso){
   var els=document.querySelectorAll('.mbpm');
   for(var i=0;i<els.length;i++) els[i].textContent=txt;
   var bs=document.querySelectorAll('.metro button');
@@ -6898,35 +6973,57 @@ function __metroPinta(txt, bpm){
     bs[j].className = bs[j].className.replace(/\s*on\b/,'');
     if(bpm && bs[j].textContent.indexOf(String(bpm))===0) bs[j].className += ' on';
   }
+  var av=document.querySelectorAll('.mavi');
+  for(var k=0;k<av.length;k++) av[k].textContent = aviso||'';
+}
+function __pulso(){
+  var ps=document.querySelectorAll('.mpulso');
+  for(var i=0;i<ps.length;i++){
+    ps[i].className='mpulso on';
+    (function(el){ setTimeout(function(){ el.className='mpulso'; }, 110); })(ps[i]);
+  }
 }
 function metro(bpm){
-  if(__metroId){ clearInterval(__metroId); __metroId=null; }
-  if(!bpm || bpm===__metroBpm){ __metroBpm=0; __metroPinta('\u2014', 0); return; }
+  if(__schedId){ clearInterval(__schedId); __schedId=null; }
+  if(__visId){ clearInterval(__visId); __visId=null; }
+  if(!bpm || bpm===__metroBpm){ __metroBpm=0; __metroPinta('—',0,''); return; }
   __metroBpm=bpm;
-  try{
-    if(!__ctx) __ctx = new (window.AudioContext||window.webkitAudioContext)();
-    if(__ctx.state==='suspended') __ctx.resume();
-  }catch(e){ __metroPinta('sin audio', 0); __metroBpm=0; return; }
-  __metroPinta(bpm+' bpm', bpm);
-  function clic(){
-    try{
-      var o=__ctx.createOscillator(), g=__ctx.createGain(), t=__ctx.currentTime;
-      o.frequency.value=1000; o.type='square';
-      g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.35,t+0.002);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
-      o.connect(g); g.connect(__ctx.destination);
-      o.start(t); o.stop(t+0.06);
-    }catch(e){}
+  var ctx=__audioListo();
+  if(!ctx){
+    __metroPinta(bpm+' bpm', bpm, 'Este navegador no reproduce sonido: usa el punto que parpadea.');
+    __visId=setInterval(__pulso, 60000/bpm); __pulso();
+    return;
   }
-  clic();
-  __metroId=setInterval(clic, 60000/bpm);
+  function arranca(){
+    if(__metroBpm!==bpm) return;
+    __nextTick = ctx.currentTime + 0.08;
+    __schedId = setInterval(function(){
+      if(__metroBpm!==bpm){ clearInterval(__schedId); __schedId=null; return; }
+      var horizonte = ctx.currentTime + 0.25;
+      while(__nextTick < horizonte){ __clic(__nextTick); __nextTick += 60/bpm; }
+    }, 40);
+    __visId=setInterval(__pulso, 60000/bpm); __pulso();
+    var aviso = (ctx.state==='running')
+      ? 'Si no oyes nada: quita el interruptor de silencio del iPhone y sube el volumen.'
+      : 'El navegador ha bloqueado el sonido. Guiate por el punto que parpadea.';
+    __metroPinta(bpm+' bpm', bpm, aviso);
+  }
+  if(ctx.state==='suspended'){
+    var pr=ctx.resume();
+    if(pr && pr.then) pr.then(arranca).catch(arranca); else arranca();
+  } else arranca();
 }
 
 /* ---------------- INCLINOMETRO ---------------- */
-var __inclTarget=null, __inclLast=null, __inclOn=false, __inclTimer=null;
-function abrirIncl(targetId){
+var __inclTarget=null, __inclLast=null, __inclOn=false, __inclTimer=null, __inclModo='horiz', __inclNota='';
+function abrirIncl(targetId, modo, nota){
   __inclTarget = targetId; __inclLast = null;
+  __inclModo = (modo==='vert') ? 'vert' : 'horiz';
+  __inclNota = nota||'';
+  var g=document.getElementById('inclGuia');
+  if(g) g.innerHTML = __inclNota
+    ? esc0(__inclNota)+'<br><b>'+(__inclModo==='vert'?'Se mide desde la vertical':'Se mide desde la horizontal')+'</b>'
+    : 'Apoya el movil en el <b>esternon</b>, pantalla hacia fuera y la parte de arriba hacia la cabeza.';
   document.getElementById('inclVal').textContent='--';
   document.getElementById('inclMsg').textContent='';
   document.getElementById('inclModal').style.display='flex';
@@ -6954,6 +7051,7 @@ function __onIncl(e){
   if(e==null || e.beta==null) return;
   var a = Math.abs(e.beta);
   if(a>90) a = 180-a;
+  if(__inclModo==='vert') a = 90-a;      /* referencia vertical */
   __inclLast = Math.round(a);
   var el=document.getElementById('inclVal'); if(el) el.textContent=__inclLast+'°';
   var m=document.getElementById('inclMsg'); if(m && m.textContent) m.textContent='';
