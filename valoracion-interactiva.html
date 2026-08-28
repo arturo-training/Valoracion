@@ -2413,6 +2413,27 @@ const pathClientApproach = {
   obesidad: { enfoque: 'Fuerza progresiva y ejercicio aeróbico adaptado. Progresar volumen antes que intensidad.', evitar: 'Impacto alto sin adaptación previa y sesiones excesivamente dificiles' }
 };
 
+/* --- ARREGLO: la casilla de Hipertension vale "hipertension" (sin tilde) pero
+   varios catalogos la guardan con tilde, asi que a ese cliente no le llegaba
+   su capa clinica ni al Sheet ni al informe. Damos de alta la version sin
+   tilde en todos. Sirve para cualquier otra clave acentuada. --- */
+(function(){
+  var cats = [];
+  try { cats.push(pathDescriptions); } catch(e){}
+  try { cats.push(pathDescClient); } catch(e){}
+  try { cats.push(pathAvoidPlain); } catch(e){}
+  try { cats.push(pathExercises); } catch(e){}
+  try { cats.push(pathClientInfo); } catch(e){}
+  try { cats.push(pathClientApproach); } catch(e){}
+  cats.forEach(function(o){
+    if (!o) return;
+    Object.keys(o).forEach(function(k){
+      var sin = k.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (sin !== k && !(sin in o)) o[sin] = o[k];
+    });
+  });
+})()
+
 // ===== OBJECTIVE APPROACH EXPLANATIONS =====
 const objectiveApproach = {
   perder_grasa: {
@@ -3677,96 +3698,186 @@ function exportCSV() {
 
 function copyMediciones() {
   var g = function(id) { var e = document.getElementById(id); return e ? (e.value || '') : ''; };
+  var n = function(id) { var v = parseFloat(String(g(id)).replace(',', '.')); return isNaN(v) ? null : v; };
 
-  // Squat observaciones (checkboxes)
-  var sqObs = [];
-  document.querySelectorAll('.checkbox-group input:checked').forEach(function(cb) {
-    if (['valgo','varo','hipshift','talones','ribflare'].indexOf(cb.value) !== -1) {
-      sqObs.push(cb.parentElement.textContent.trim());
-    }
-  });
+  var sqObs = (function() {
+    var o = [];
+    document.querySelectorAll('.checkbox-group input:checked').forEach(function(cb) {
+      if (['valgo','varo','hipshift','talones','ribflare'].indexOf(cb.value) !== -1)
+        o.push(cb.parentElement.textContent.trim());
+    });
+    return o.join(', ');
+  })();
 
-  // ============================================================
-  // MEDICIONES — Column data for _PLANTILLA
-  // Order matches: BIOMECANICA > TREN SUPERIOR > DOLOR > ANTROPOMETRIA > TESTS
-  // Sub-header rows get empty string (paste skips them)
-  // Paste in column B starting at the first data row after
-  // the "BIOMECANICA" sub-header (row 44 of new _PLANTILLA)
-  // ============================================================
-  var rows = [
-    // --- BIOMECANICA (15 data rows) ---
-    g('isaResult') || g('isa'),                     // ISA
-    g('isaGrados'),                                  // ISA Grados
-    g('toeTouch'),                                   // Toe Touch
-    g('squatResult') || g('squat'),                  // Squat
-    sqObs.length > 0 ? sqObs.join(', ') : '',        // Squat Obs
-    g('slrIzq'), g('slrDer'),                        // ASLR I/D
-    g('ktcIzq'), g('ktcDer'),                        // KTC I/D
-    g('oberIzq'), g('oberDer'),                      // Ober I/D
-    g('femRIIzq'), g('femRIDer'),                    // Fem RI I/D
-    g('femREIzq'), g('femREDer'),                    // Fem RE I/D
-    // --- TREN SUPERIOR sub-header (1 blank row) ---
-    '',
-    // --- TREN SUPERIOR (10 data rows) ---
-    g('shIRIzq'), g('shIRDer'),                      // Sh IR I/D
-    g('shERIzq'), g('shERDer'),                      // Sh ER I/D
-    g('shFlexIzq'), g('shFlexDer'),                  // Sh Flex I/D
-    g('shABDIzq'), g('shABDDer'),                    // Sh ABD I/D
-    g('shADDIzq'), g('shADDDer'),                    // Sh ADD I/D
-    // --- DOLOR sub-header (1 blank row) ---
-    '',
-    // --- DOLOR (12 data rows) ---
-    g('painLumbar'), g('painDorsal'),
-    g('painRodIzq'), g('painRodDer'),
-    g('painHomIzq'), g('painHomDer'),
-    g('painCervical'),
-    g('painCadIzq'), g('painCadDer'),
-    g('painTobIzq'), g('painTobDer'),
-    g('painOtraZona') || g('painOtra') || '',         // D. Otra zona
-    // --- ANTROPOMETRIA sub-header (1 blank row) ---
-    '',
-    // --- ANTROPOMETRIA (13 data rows) ---
-    g('peso'),
-    g('altura'),
-    // IMC = peso / (altura_m)^2
-    (function() { var p = parseFloat(g('peso')), h = parseFloat(g('altura'));
-      return (p && h) ? (p / Math.pow(h/100, 2)).toFixed(1) : ''; })(),
-    // RFM = 64 - (20 * altura/cintura) + (12 * sexo_val)  [sexo: 0=M, 1=F]
-    (function() { var h = parseFloat(g('altura')), c = parseFloat(g('cintura')),
-      s = (g('sexo') === 'F' || g('sexo') === 'Mujer') ? 1 : 0;
-      return (h && c) ? (64 - (20 * h/c) + (12 * s)).toFixed(1) : ''; })(),
-    g('cintura'),
-    g('cadera'),
-    g('brazoIzq'), g('brazoDer'),
-    g('musloIzq'), g('musloDer'),
-    g('plicAbdominal'), g('plicTriceps'), g('plicSuprailiaco'),
-    // --- TESTS OPCIONALES sub-header (1 blank row) ---
-    '',
-    // --- TESTS OPCIONALES (11 data rows) ---
-    g('respMin'),
-    g('apnea'),
-    g('gripIzq'), g('gripDer'),
-    g('flexiones'),
-    g('plancha'),
-    g('cmjAltura'),
-    g('cmjTiempo') || '',
-    g('chairStand30'),
-    g('sitToStand5'),
-    g('observaciones') || ''
+  function sum2(a, b) { var x = n(a), y = n(b); return (x !== null && y !== null) ? String(Math.round(x + y)) : ''; }
+  function resta(a, b) { var x = n(a), y = n(b); return (x !== null && y !== null) ? String(Math.max(0, Math.round(x - y))) : ''; }
+  function ratio(a, b) { var x = n(a), y = n(b); return (x && y) ? (x / y).toFixed(2) : ''; }
+  function imc() { var p = n('peso'), h = n('altura'); return (p && h) ? (p / Math.pow(h / 100, 2)).toFixed(1) : ''; }
+  function rfm() {
+    var h = n('altura'), c = n('cintura'), f = (g('sexo') === 'F' || g('sexo') === 'Mujer') ? 1 : 0;
+    return (h && c) ? (64 - (20 * h / c) + (12 * f)).toFixed(1) : '';
+  }
+  function simetria() {
+    var i = n('mcgLatIzq'), d = n('mcgLatDer');
+    return (i && d) ? String(Math.round(Math.min(i, d) / Math.max(i, d) * 100)) : '';
+  }
+  function pctMax() {
+    var fc = n('fcPico'), e = n('edad');
+    if (!fc || !e) return '';
+    return String(Math.round(fc / (208 - 0.7 * e) * 100));   /* Tanaka */
+  }
+
+  var filas = [
+    '',    // —— IDENTIFICACION
+    g('evalDate'),  // Fecha valoracion
+    g('evalNumber'),  // Num. valoracion
+    g('edad'),  // Edad ese dia
+    g('actividadPrevia'),  // Actividad previa
+    '',    // —— POSTURA
+    g('posT1'),  // Cifosis T1 (deg)
+    g('posT12'),  // Cifosis T12 (deg)
+    sum2('posT1','posT12'),  // Cifosis total (deg)
+    g('posOWD'),  // Nuca-pared relajado (cm)
+    g('posOWDmax'),  // Nuca-pared corrigiendo (cm)
+    '',    // —— BIOMECANICA
+    g('isa'),  // ISA
+    g('isaIzq'),  // ISA Izq
+    g('isaDer'),  // ISA Der
+    g('isaGrados'),  // ISA Grados
+    g('toeTouch'),  // Toe Touch
+    g('squat'),  // Squat
+    sqObs,  // Squat Obs
+    g('slrIzq'),  // ASLR Izq
+    g('slrDer'),  // ASLR Der
+    g('ktcIzq'),  // KTC Izq
+    g('ktcDer'),  // KTC Der
+    g('oberIzq'),  // Ober Izq
+    g('oberDer'),  // Ober Der
+    g('femRIIzq'),  // Fem RI Izq
+    g('femRIDer'),  // Fem RI Der
+    g('femREIzq'),  // Fem RE Izq
+    g('femREDer'),  // Fem RE Der
+    '',    // —— ROM EN GRADOS (INCLINOMETRO)
+    g('romAslrIzq'),  // ASLR Izq (deg)
+    g('romAslrDer'),  // ASLR Der (deg)
+    g('romKtcIzq'),  // KTC Izq (deg)
+    g('romKtcDer'),  // KTC Der (deg)
+    g('romShIRIzq'),  // Sh IR Izq (deg)
+    g('romShIRDer'),  // Sh IR Der (deg)
+    g('romShERIzq'),  // Sh ER Izq (deg)
+    g('romShERDer'),  // Sh ER Der (deg)
+    g('romShFlexIzq'),  // Sh Flex Izq (deg)
+    g('romShFlexDer'),  // Sh Flex Der (deg)
+    '',    // —— TREN SUPERIOR
+    g('shIRIzq'),  // Sh IR Izq
+    g('shIRDer'),  // Sh IR Der
+    g('shERIzq'),  // Sh ER Izq
+    g('shERDer'),  // Sh ER Der
+    g('shFlexIzq'),  // Sh Flex Izq
+    g('shFlexDer'),  // Sh Flex Der
+    g('shABDIzq'),  // Sh ABD Izq
+    g('shABDDer'),  // Sh ABD Der
+    g('shADDIzq'),  // Sh ADD Izq
+    g('shADDDer'),  // Sh ADD Der
+    '',    // —— DOLOR REPORTADO
+    g('painCervical'),  // D. Cervical
+    g('painDorsal'),  // D. Dorsal
+    g('painLumbar'),  // D. Lumbar
+    g('painHomIzq'),  // D. Hom Izq
+    g('painHomDer'),  // D. Hom Der
+    g('painCadIzq'),  // D. Cad Izq
+    g('painCadDer'),  // D. Cad Der
+    g('painRodIzq'),  // D. Rod Izq
+    g('painRodDer'),  // D. Rod Der
+    g('painTobIzq'),  // D. Tob Izq
+    g('painTobDer'),  // D. Tob Der
+    g('painOtraZona'),  // D. Otra zona (cual)
+    g('painOtra'),  // D. Otra zona (0-10)
+    '',    // —— ANTROPOMETRIA
+    g('peso'),  // Peso (kg)
+    g('altura'),  // Altura (cm)
+    imc(),  // IMC
+    rfm(),  // RFM (%)
+    g('cintura'),  // Cintura (cm)
+    g('cadera'),  // Cadera (cm)
+    g('brazoIzq'),  // Brazo Izq (cm)
+    g('brazoDer'),  // Brazo Der (cm)
+    g('musloIzq'),  // Muslo Izq (cm)
+    g('musloDer'),  // Muslo Der (cm)
+    g('plicAbdominal'),  // Plic. Abdominal
+    g('plicTriceps'),  // Plic. Triceps
+    g('plicSuprailiaco'),  // Plic. Suprailiaco
+    '',    // —— HABITOS MEDIDOS
+    g('horasSueno'),  // Horas sueno
+    g('sueno'),  // Calidad sueno (/10)
+    g('despertares'),  // Despertares/noche
+    g('estres'),  // Estres (/10)
+    g('vasosAgua'),  // Vasos de agua
+    g('horasSentado'),  // Horas sentado
+    '',    // —— 1 · RESPIRACION Y PULSO
+    g('respMin'),  // Resp/min
+    g('apnea'),  // Apnea (s)
+    g('fcReposo'),  // FC reposo (lpm)
+    '',    // —— 2 · EQUILIBRIO Y FUNCION
+    g('srtPuntos'),  // Sitting-Rising (0-10)
+    g('eqAbIzq'),  // Unipodal ojos ab. Izq (s)
+    g('eqAbDer'),  // Unipodal ojos ab. Der (s)
+    g('eqCeIzq'),  // Unipodal ojos ce. Izq (s)
+    g('eqCeDer'),  // Unipodal ojos ce. Der (s)
+    '',    // —— 3 · AGARRE
+    g('gripIzq'),  // Grip Izq (kg)
+    g('gripDer'),  // Grip Der (kg)
+    '',    // —— 4 · POTENCIA
+    g('cmjAltura'),  // CMJ Altura (cm)
+    g('cmjTiempo'),  // CMJ Tiempo (ms)
+    '',    // —— 5 · FUERZA
+    g('flexNivel'),  // Flexiones NIVEL
+    g('flexiones'),  // Flexiones (reps)
+    g('flexAltura'),  // Flexiones altura apoyo (cm)
+    g('trxNivel'),  // TRX NIVEL
+    g('trxReps'),  // TRX remo (reps)
+    g('trxIso'),  // TRX isometrico (s)
+    g('trxAngulo'),  // TRX angulo (deg)
+    g('trxTalon'),  // TRX talon (cm)
+    g('trxCinta'),  // TRX marca cinta
+    g('trxPies'),  // TRX pies elevados (cm)
+    g('wallNivel'),  // Wall sit NIVEL
+    g('wallSeg'),  // Wall sit (s)
+    g('wallMuslo'),  // Wall sit angulo muslo (deg)
+    g('chairStand30'),  // Chair Stand (30s)
+    g('sitToStand5'),  // Sit-to-Stand (5)
+    '',    // —— 6 · TRONCO
+    g('planchaNivel'),  // Plancha NIVEL
+    g('plancha'),  // Plancha (s)
+    g('planchaCm'),  // Plancha codo (cm)
+    g('mcgFlex'),  // McGill flexores (s)
+    g('mcgLatVersion'),  // McGill lateral VERSION
+    g('mcgLatIzq'),  // McGill lateral Izq (s)
+    g('mcgLatDer'),  // McGill lateral Der (s)
+    g('mcgExtVersion'),  // McGill extensores VERSION
+    g('mcgExt'),  // McGill extensores (s)
+    ratio('mcgLatIzq','mcgLatDer'),  // Ratio lateral Izq/Der
+    ratio('mcgFlex','mcgExt'),  // Ratio flex/ext
+    simetria(),  // Simetria lados (%)
+    '',    // —— 7 · CARDIOVASCULAR
+    g('cardioRitmo'),  // Ritmo metronomo
+    g('cardioTiempo'),  // Tiempo completado (s)
+    g('fcPico'),  // FC pico (lpm)
+    g('fcRec1'),  // FC rec. 1 min (lpm)
+    resta('fcPico','fcRec1'),  // Caida FC 1 min (lpm)
+    pctMax(),  // % FC maxima
+    g('cardioRPE'),  // RPE (/10)
+    '',    // —— CIERRE
+    g('observaciones'),  // Observaciones
   ];
 
-  var text = rows.join('\n');
-  var rowCount = rows.length;
-  navigator.clipboard.writeText(text).then(function() {
-    showToast('Mediciones copiadas (' + rowCount + ' filas). Pega en la columna de tu siguiente valoracion (B=Val1, C=Val2...), fila 44.');
-  }).catch(function() {
+  var texto = filas.join('\n');
+  var aviso = 'Mediciones copiadas (141 filas). Pega en la fila 45 de la columna de esta valoracion.';
+  navigator.clipboard.writeText(texto).then(function() { showToast(aviso); }).catch(function() {
     var ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Mediciones copiadas (' + rowCount + ' filas). Pega en col B-I, fila 44.');
+    ta.value = texto; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast(aviso);
   });
 }
 
@@ -3923,6 +4034,8 @@ function copyAnalisis() {
     }
   });
 
+  var otraP = (document.getElementById('otraPatologia') || {}).value || '';
+  if (otraP.trim()) pathNames.push(otraP.trim());
   var pathoText = pathNames.length > 0 ? pathNames.join(', ') : 'Ninguna';
   var uniquePresencial = deduplicateExercises(presencialList);
   var presText = uniquePresencial.length > 0 ? uniquePresencial.join(', ') : '-';
@@ -4043,7 +4156,7 @@ function copyAnalisis() {
   var text = analysisRows.map(function(v) { return v.replace(/\n/g, ' | '); }).join('\n');
   var rowCount = analysisRows.length;
   navigator.clipboard.writeText(text).then(function() {
-    showToast('Analisis copiado (' + rowCount + ' filas). Pega siempre en celda B111 (se sobreescribe).');
+    showToast('Analisis copiado (' + rowCount + ' filas). Pega siempre en celda B188 (se sobreescribe).');
   }).catch(function() {
     var ta = document.createElement('textarea');
     ta.value = text;
@@ -4051,7 +4164,7 @@ function copyAnalisis() {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast('Analisis copiado. Pega en B111 (sobreescribe el anterior).');
+    showToast('Analisis copiado. Pega en B188 (sobreescribe el anterior).');
   });
 }
 
@@ -4245,12 +4358,12 @@ function exportPDF() {
   drawHeader('DATOS DEL CLIENTE', PRIMARY);
   drawRow('Nombre', name);
   drawRow('Fecha valoracion', date);
-  drawRow('Edad', val('clientAge'));
-  drawRow('Sexo', val('clientSex'));
-  drawRow('Altura (cm)', val('clientHeight'));
-  drawRow('Peso (kg)', val('clientWeight'));
-  var h = parseFloat(val('clientHeight')) / 100;
-  var w = parseFloat(val('clientWeight'));
+  drawRow('Edad', val('edad'));
+  drawRow('Sexo', val('sexo'));
+  drawRow('Altura (cm)', val('altura'));
+  drawRow('Peso (kg)', val('peso'));
+  var h = parseFloat(val('altura')) / 100;
+  var w = parseFloat(val('peso'));
   if (h > 0 && w > 0) drawRow('IMC', (w / (h * h)).toFixed(1));
   drawRow('Actividad semanal', val('activityLevel'));
   drawRow('Calidad sueno', val('sleepQuality'));
@@ -5684,10 +5797,10 @@ function exportInforme() {
   }
 
   // Client profile - visual cards
-  var edad = val('clientAge') || val('edad');
-  var sexo = val('clientSex') || val('sexo');
-  var altura = val('clientHeight');
-  var peso = val('clientWeight');
+  var edad = val('edad') || val('edad');
+  var sexo = val('sexo') || val('sexo');
+  var altura = val('altura');
+  var peso = val('peso');
   var actLvl = val('actividadPrevia');
   var hVal = parseFloat(altura) / 100;
   var wVal = parseFloat(peso);
