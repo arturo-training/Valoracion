@@ -895,7 +895,7 @@ select:focus, input:focus, textarea:focus {
     </div>
     <div class="row">
       <div class="field">
-        <label>Calidad de sueno (1-10)</label>
+        <label>Dificultad para dormir (1-10)</label>
         <div class="hint">1 = duermo genial, 10 = duermo fatal</div>
         <div class="pain-slider">
           <span style="font-size:12px">1</span>
@@ -4839,8 +4839,10 @@ function copyParaInforme(returnOnly) {
     return (v >= 7 && v <= 9) ? 'Saludable' : (v >= 6 || v > 9) ? 'A mejorar' : 'A trabajar';
   }
   function sleepQualityLevel(v) {
+    /* Escala invertida a proposito, como el dolor y el estres:
+       1 = duermo genial, 10 = duermo fatal. Cuanto mas alto, peor. */
     v = parseInt(v); if (!v) return '';
-    return v >= 7 ? 'Saludable' : v >= 4 ? 'A mejorar' : 'A trabajar';
+    return v <= 3 ? 'Saludable' : v <= 6 ? 'A mejorar' : 'A trabajar';
   }
   function stressLevel(v) {
     v = parseInt(v); if (!v) return '';
@@ -5231,7 +5233,7 @@ function copyParaInforme(returnOnly) {
   var hSueno = val('horasSueno');
   if (hSueno) { lines.push(hSueno + ' h  ·  horas de sueño  ·  ' + sleepHoursLevel(hSueno)); hasHabits = true; }
   var calSueno = val('sueno');
-  if (calSueno && calSueno !== '5') { lines.push(calSueno + ' /10  ·  calidad del sueño  ·  ' + sleepQualityLevel(calSueno)); hasHabits = true; }
+  if (calSueno && calSueno !== '5') { lines.push(calSueno + ' /10  ·  dificultad para dormir  ·  ' + sleepQualityLevel(calSueno)); hasHabits = true; }
   var desp = val('despertares');
   if (desp) { lines.push(desp + '  ·  despertares nocturnos'); hasHabits = true; }
   var estres = val('estres');
@@ -6573,7 +6575,7 @@ function buildInformeData() {
     return v<lo?'A trabajar':v<lo+5?'A mejorar':'Saludable'; }
   function sitToStandLevel(v){ v=parseFloat(v); if(!v) return ''; return v<=8?'Saludable':v<=12?'A mejorar':'A trabajar'; }
   function sleepHoursLevel(v){ v=parseFloat(v); if(!v) return ''; return (v>=7&&v<=9)?'Saludable':(v>=6||v>9)?'A mejorar':'A trabajar'; }
-  function sleepQualityLevel(v){ v=parseInt(v); if(!v) return ''; return v>=7?'Saludable':v>=4?'A mejorar':'A trabajar'; }
+  function sleepQualityLevel(v){ v=parseInt(v); if(!v) return ''; return v<=3?'Saludable':v<=6?'A mejorar':'A trabajar'; }
   function stressLevel(v){ v=parseInt(v); if(!v) return ''; return v<=3?'Saludable':v<=6?'A mejorar':'A trabajar'; }
   function grasaCalc(){
     var alt=parseFloat(val('altura')), cin=parseFloat(val('cintura'));
@@ -6909,7 +6911,7 @@ function buildInformeData() {
   /* ---- Habitos ---- */
   var hb=[];
   if(val('horasSueno')) hb.push({metrica:'horas_sueno', valor:val('horasSueno'), unidad:'h', etiqueta:'horas de sueño', nivel:sleepHoursLevel(val('horasSueno'))});
-  if(val('sueno')) hb.push({metrica:'calidad_sueno', valor:val('sueno'), unidad:'/10', etiqueta:'calidad del sueño', nivel:sleepQualityLevel(val('sueno'))});
+  if(val('sueno')) hb.push({metrica:'calidad_sueno', valor:val('sueno'), unidad:'/10', etiqueta:'dificultad para dormir', nivel:sleepQualityLevel(val('sueno'))});
   if(val('estres')) hb.push({metrica:'estres', valor:val('estres'), unidad:'/10', etiqueta:'nivel de estrés', nivel:stressLevel(val('estres'))});
   if(val('despertares')){ var dp=parseInt(val('despertares'))||0; hb.push({metrica:'despertares', valor:val('despertares'), unidad:'/noche', etiqueta:'despertares nocturnos', nivel: dp===0?'Saludable':dp<=1?'A mejorar':'A trabajar'}); }
   if(val('vasosAgua')){ var va=parseFloat(val('vasosAgua')); hb.push({metrica:'agua', valor:val('vasosAgua'), unidad:'vasos', etiqueta:'agua al día', nivel: va>=8?'Saludable':va>=4?'A mejorar':'A trabajar'}); }
