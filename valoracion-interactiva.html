@@ -1287,15 +1287,17 @@ select:focus, input:focus, textarea:focus {
     <div class="interpretation" id="flex-interp"></div>
     <div class="field" style="margin-top:12px">
       <label class="sub-label">Traccion en TRX <button type="button" class="pbtn" onclick="verProto('trx')">?</button></label>
-      <div class="hint">El <b>angulo del cuerpo</b> es el dato critico: sin el, las repeticiones no se comparan.</div>
+      <div class="hint">El <b>angulo del cuerpo</b> es el dato critico: sin el, las repeticiones no se comparan. Se mide <b>abajo, con los brazos estirados</b>: cuanto menor es el angulo, mas horizontal esta el cuerpo y mas dificil es.</div>
     </div>
     <div class="row rowb">
       <div class="field"><label class="sub-label">Nivel</label>
         <select id="trxNivel" onchange="evalTRX()">
           <option value="">&mdash; sin hacer &mdash;</option>
           <option value="60">Nivel 1 &mdash; 60 grados (inicial)</option>
-          <option value="40">Nivel 2 &mdash; 40 grados (estandar)</option>
-          <option value="pies">Nivel 3 &mdash; 40 grados, pies elevados</option>
+          <option value="40">Nivel 2 &mdash; 40 grados</option>
+          <option value="30">Nivel 3 &mdash; 30 grados</option>
+          <option value="20">Nivel 4 &mdash; 20 grados</option>
+          <option value="pies">Nivel 5 &mdash; pies elevados</option>
         </select></div>
       <div class="field"><label class="sub-label">Repeticiones</label>
         <input type="number" id="trxReps" placeholder="reps" min="0" max="60" oninput="evalTRX()"></div>
@@ -1307,13 +1309,14 @@ select:focus, input:focus, textarea:focus {
           <button type="button" class="mbtn" onclick="abrirIncl('trxAngulo')">Medir</button>
         </div></div>
       <div class="field"><label class="sub-label">Talon a la vertical del anclaje (cm)</label>
-        <input type="number" id="trxTalon" placeholder="cm" min="0" max="300"></div>
+        <div class="hint">Si los talones quedan justo debajo del anclaje, apunta <b>0</b>: es el limite, para bajar mas el angulo habria que elevar los pies.</div>
+        <input type="number" id="trxTalon" placeholder="cm (0 si esta debajo)" min="0" max="300"></div>
     </div>
     <div class="row rowb">
       <div class="field"><label class="sub-label">Marca de la cinta</label>
         <input type="text" id="trxCinta" placeholder="ej. media / marca 4"></div>
       <div class="field"><label class="sub-label">Altura pies elevados (cm)</label>
-        <input type="number" id="trxPies" placeholder="solo nivel 3" min="0" max="100"></div>
+        <input type="number" id="trxPies" placeholder="solo nivel 5" min="0" max="100"></div>
     </div>
     <div class="field">
       <label class="sub-label">Isometrico arriba (seg)</label>
@@ -5904,158 +5907,8 @@ function exportInforme() {
   introLines.forEach(function(line) { doc.text(line, mL, y); y += 4.5; });
   y += 6;
 
-  // Build ALL semaforo items
-  var semaforoItems = [];
-  function getInterpLevel(id) {
-    var el = document.getElementById(id);
-    if (!el || !el.classList.contains('show')) return null;
-    if (el.classList.contains('good')) return 'green';
-    if (el.classList.contains('warning')) return 'amber';
-    if (el.classList.contains('alert')) return 'red';
-    return null;
-  }
-
-  // --- MOBILITY ---
-  var dL = parseFloat(val('dorsiL')), dR = parseFloat(val('dorsiR'));
-  if (dL || dR) {
-    var dMin = Math.min(dL || 99, dR || 99);
-    var dLvl = dMin >= 12 ? 'green' : dMin >= 8 ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Movilidad de tobillo', level: dLvl, value: (dL||'-') + '° izq / ' + (dR||'-') + '° der',
-      desc: dLvl === 'green' ? 'Buen rango de movimiento en tus tobillos. Esto facilita una sentadilla segura.' : dLvl === 'amber' ? 'Tus tobillos pueden mejorar en rango de movimiento, lo que beneficiará tu sentadilla y equilibrio.' : 'Tus tobillos tienen un rango limitado. Esto puede afectar a tus rodillas y espalda al agacharte.' });
-  }
-
-  var sL = parseFloat(val('slrL')), sR = parseFloat(val('slrR'));
-  if (sL || sR) {
-    var sMin = Math.min(sL || 99, sR || 99);
-    var sLvl = sMin >= 70 ? 'green' : sMin >= 50 ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Flexibilidad posterior (piernas)', level: sLvl, value: (sL||'-') + '° izq / ' + (sR||'-') + '° der',
-      desc: sLvl === 'green' ? 'Buena flexibilidad en la parte posterior de tus piernas.' : sLvl === 'amber' ? 'La parte posterior de tus piernas puede mejorar, algo que haremos en cada sesión.' : 'La parte posterior de tus piernas está acortada. Esto puede causar molestias lumbares y limitar tus movimientos.' });
-  }
-
-  var thL = radio('thomasL'), thR = radio('thomasR');
-  if (thL || thR) {
-    var thLvl = (thL === 'positivo' || thR === 'positivo') ? 'red' : 'green';
-    var thVal = 'Izq: ' + (thL || '-') + ' / Der: ' + (thR || '-');
-    semaforoItems.push({ area: 'Flexores de cadera', level: thLvl, value: thVal,
-      desc: thLvl === 'green' ? 'Tus flexores de cadera tienen buena longitud y no están acortados.' : 'Tus flexores de cadera están acortados, algo muy común si pasas mucho tiempo sentado. Esto puede generar dolor lumbar y limitar la extensión de tu cadera.' });
-  }
-
-  var obL = radio('oberL'), obR = radio('oberR');
-  if (obL || obR) {
-    var obLvl = (obL === 'positivo' || obR === 'positivo') ? 'red' : 'green';
-    semaforoItems.push({ area: 'Banda lateral (iliotibial)', level: obLvl, value: 'Izq: ' + (obL||'-') + ' / Der: ' + (obR||'-'),
-      desc: obLvl === 'green' ? 'La banda lateral de tus piernas tiene buena elasticidad.' : 'La banda lateral de tus piernas está tensa. Esto puede causar dolor en la cara externa de la rodilla.' });
-  }
-
-  // --- HIP ---
-  var hipIRL = val('hipIRL'), hipIRR = val('hipIRR'), hipERL = val('hipERL'), hipERR = val('hipERR');
-  if (hipIRL || hipIRR) {
-    var irMin = Math.min(parseFloat(hipIRL)||99, parseFloat(hipIRR)||99);
-    var hipLvl = irMin >= 35 ? 'green' : irMin >= 25 ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Rotación de cadera', level: hipLvl, value: 'RI: ' + (hipIRL||'-') + '°/' + (hipIRR||'-') + '° | RE: ' + (hipERL||'-') + '°/' + (hipERR||'-') + '°',
-      desc: hipLvl === 'green' ? 'Tu cadera tiene buena movilidad rotacional.' : 'Tu cadera tiene limitación en la rotación. Esto puede afectar a cómo caminas, corres y te agachas.' });
-  }
-
-  // --- SHOULDER ---
-  var shFL = parseFloat(val('shoulderFlexL')), shFR = parseFloat(val('shoulderFlexR'));
-  if (shFL || shFR) {
-    var shMin = Math.min(shFL || 999, shFR || 999);
-    var shLvl = shMin >= 170 ? 'green' : shMin >= 150 ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Movilidad de hombro', level: shLvl, value: (shFL||'-') + '° izq / ' + (shFR||'-') + '° der',
-      desc: shLvl === 'green' ? 'Buena movilidad en tus hombros para levantar los brazos.' : shLvl === 'amber' ? 'Tus hombros tienen algo de limitación que mejoraremos progresivamente.' : 'La movilidad de tus hombros necesita atención. Vamos a trabajarla para que puedas moverte con más libertad.' });
-  }
-
-  var shERL = val('shoulderERL'), shERR = val('shoulderERR'), shIRL = val('shoulderIRL'), shIRR = val('shoulderIRR');
-  if (shERL || shERR || shIRL || shIRR) {
-    var erMin = Math.min(parseFloat(shERL)||99, parseFloat(shERR)||99);
-    var irShMin = Math.min(parseFloat(shIRL)||99, parseFloat(shIRR)||99);
-    var shRotLvl = (erMin >= 85 && irShMin >= 65) ? 'green' : (erMin >= 70 && irShMin >= 50) ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Rotación de hombro', level: shRotLvl, value: 'RE: ' + (shERL||'-') + '°/' + (shERR||'-') + '° | RI: ' + (shIRL||'-') + '°/' + (shIRR||'-') + '°',
-      desc: shRotLvl === 'green' ? 'Buena capacidad de rotación en tus hombros.' : 'Tus hombros tienen limitación en la rotación. Esto es importante para la salud articular del hombro.' });
-  }
-
-  var nL = radio('neerL'), nR = radio('neerR'), hwL = radio('hawkinsL'), hwR = radio('hawkinsR');
-  if (nL || nR || hwL || hwR) {
-    var impPos = (nL === 'positivo' || nR === 'positivo' || hwL === 'positivo' || hwR === 'positivo');
-    var impLvl = impPos ? 'red' : 'green';
-    semaforoItems.push({ area: 'Compresión de hombro', level: impLvl, value: impPos ? 'Positivo' : 'Negativo',
-      desc: impPos ? 'Detectamos signos de compresión en tu hombro. Adaptaremos los ejercicios para protegerlo y fortalecerlo.' : 'No hay signos de compresión en tus hombros. Buena señal.' });
-  }
-
-  // --- FUNCTIONAL ---
-  var dsq = radio('deepSquat');
-  if (dsq) {
-    var dsqLvl = dsq === 'buena' ? 'green' : dsq === 'limitada' ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Patrón de sentadilla', level: dsqLvl, value: dsq,
-      desc: dsqLvl === 'green' ? 'Tu patrón de sentadilla es correcto y funcional.' : dsqLvl === 'amber' ? 'Tu sentadilla tiene algunas limitaciones que corregiremos para que sea más eficiente y segura.' : 'Tu patrón de sentadilla necesita trabajo. Mejorar esto te protegerá la espalda y las rodillas.' });
-  }
-
-  var kv = radio('kneeValgus');
-  if (kv) {
-    var kvLvl = kv === 'no' ? 'green' : kv === 'leve' ? 'amber' : 'red';
-    semaforoItems.push({ area: 'Alineación de rodillas', level: kvLvl, value: kv === 'no' ? 'Correcta' : kv === 'leve' ? 'Leve valgo' : 'Valgo marcado',
-      desc: kvLvl === 'green' ? 'Buena alineación de rodillas durante el movimiento.' : kvLvl === 'amber' ? 'Tus rodillas tienden a irse ligeramente hacia dentro. Lo corregiremos con fortalecimiento de glúteos.' : 'Tus rodillas se van hacia dentro al moverte. Prioridad para proteger tus articulaciones.' });
-  }
-
-  // --- STRENGTH/FITNESS ---
-  var gripI = parseFloat(val('gripIzq') || val('gripL')), gripD = parseFloat(val('gripDer') || val('gripR'));
-  if (gripI || gripD) {
-    var lvl = getInterpLevel('grip-interp');
-    if (lvl) {
-      semaforoItems.push({ area: 'Fuerza de agarre', level: lvl, value: (gripI||'-') + ' kg izq / ' + (gripD||'-') + ' kg der',
-        desc: lvl === 'green' ? 'Tu fuerza de agarre es buena. Este es un indicador importante de salud general y longevidad.' : lvl === 'amber' ? 'Tu fuerza de agarre es normal pero tiene margen de mejora. La mejoraremos con el entrenamiento.' : 'Tu fuerza de agarre está por debajo de lo esperado. La fuerza de agarre se relaciona directamente con la salud general, así que mejorarla será prioritario.' });
-    }
-  }
-
-  // Respiratory
-  var respLvl = getInterpLevel('resp-interp');
-  if (respLvl) {
-    semaforoItems.push({ area: 'Respiración', level: respLvl, value: val('respMin') + ' resp/min',
-      desc: respLvl === 'green' ? 'Tu patrón respiratorio en reposo es normal y saludable.' : respLvl === 'amber' ? 'Tu respiración puede optimizarse con ejercicios específicos.' : 'Tu frecuencia respiratoria indica que debemos trabajar la respiración. Esto impacta directamente en tu energía y recuperación.' });
-  }
-
-  var apneaLvl = getInterpLevel('apnea-interp');
-  if (apneaLvl) {
-    semaforoItems.push({ area: 'Control respiratorio (BOLT)', level: apneaLvl, value: val('apnea') + ' segundos',
-      desc: apneaLvl === 'green' ? 'Buena tolerancia al CO2, indicador de eficiencia respiratoria.' : 'Tu tolerancia al CO2 es baja. Trabajaremos ejercicios de respiración nasal y control que mejorarán tu rendimiento y reducirán el estrés.' });
-  }
-
-  // Chair stand / STS (elderly)
-  var chairLvl = getInterpLevel('chair-interp');
-  if (chairLvl) {
-    semaforoItems.push({ area: 'Fuerza funcional (sentarse/levantarse)', level: chairLvl, value: val('chairStand30') + ' repeticiones en 30s',
-      desc: chairLvl === 'green' ? 'Tu fuerza funcional para levantarte y sentarte es buena para tu edad.' : 'Tu capacidad para sentarte y levantarte necesita mejora. Esto es fundamental para tu autonomía y calidad de vida.' });
-  }
-
-  var stsLvl = getInterpLevel('sts-interp');
-  if (stsLvl) {
-    semaforoItems.push({ area: 'Velocidad funcional (5x levantarse)', level: stsLvl, value: val('sitToStand5') + ' segundos',
-      desc: stsLvl === 'green' ? 'Buena velocidad y control al levantarte. No hay riesgo elevado de caídas.' : stsLvl === 'amber' ? 'Tu velocidad al levantarte es moderada. Mejorarla reducirá tu riesgo de caídas.' : 'Tu tiempo está por encima de lo recomendado. Esto indica riesgo de caídas que vamos a reducir con ejercicios de fuerza y equilibrio.' });
-  }
-
-  // Pain
-  var painZones = document.querySelectorAll('.pain-zone');
-  var hasPain = false;
-  var painAreas = [];
-  painZones.forEach(function(z) {
-    var zone = z.querySelector('.pain-zone-label');
-    var intensity = z.querySelector('input[type="range"]');
-    if (zone && intensity && parseInt(intensity.value) > 0) {
-      hasPain = true;
-      painAreas.push(zone.textContent.trim() + ' (' + intensity.value + '/10)');
-    }
-  });
-  if (hasPain) {
-    semaforoItems.push({ area: 'Dolor', level: 'red', value: painAreas.length + ' zona(s)',
-      desc: 'Reportas dolor en: ' + painAreas.join(', ') + '. Lo tendremos muy en cuenta para adaptar tu programa y reducirlo progresivamente.' });
-  }
-
-  // Body composition
-  var rfmLvl = getInterpLevel('rfm-result');
-  if (rfmLvl) {
-    semaforoItems.push({ area: 'Composición corporal', level: rfmLvl, value: bfat ? bfat + '% grasa' : 'Ver detalle',
-      desc: rfmLvl === 'green' ? 'Tu composición corporal está en un rango saludable.' : rfmLvl === 'amber' ? 'Tu composición corporal puede mejorar con el programa de entrenamiento.' : 'Mejorar tu composición corporal será un objetivo importante. El entrenamiento de fuerza es la herramienta más potente para lograrlo.' });
-  }
+  // Semaforo: se construye aparte (construirSemaforo) para poder reutilizarlo
+  var semaforoItems = construirSemaforo();
 
   // --- DRAW SEMÁFORO ---
   if (semaforoItems.length > 0) {
@@ -6559,6 +6412,179 @@ function exportInforme() {
 }
 
 
+
+/* ============================================================
+   SEMAFORO — una linea en lenguaje de cliente por cada test.
+   Esto ya se calculaba, pero solo se usaba en el PDF de la propia
+   herramienta. Ahora vive aparte para poder mandarlo tambien en el
+   JSON del informe, que es donde de verdad lo lee el cliente.
+   ============================================================ */
+function construirSemaforo(){
+  /* OJO — de las 17 entradas que hay aqui abajo, solo 5 pueden salir de verdad:
+       agarre, respiracion, BOLT, levantarse de la silla (30s) y 5x levantarse.
+     Las demas (tobillo, SLR, Ober, Thomas, rotacion de cadera y de hombro,
+     Neer/Hawkins, patron de sentadilla, valgo de rodilla, dolor) leen campos
+     de una version vieja de la herramienta —dorsiL, slrL, oberL, thomasL,
+     hipIRL, shoulderFlexL, deepSquat, kneeValgus, .pain-zone— que ya no
+     existen, asi que nunca se cumplen. No las borro porque no molestan y
+     documentan que se midio en su dia; pero no esperes verlas en el informe.
+     Lo que miden esos tests ya sale en el informe por otro sitio: en las
+     tarjetas de biomecanica y en la hoja de grados. */
+  function val(id){ var el = document.getElementById(id); return el ? (el.value || '') : ''; }
+  function radio(name){ var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
+  var bfat = val('bodyFat');
+  // Build ALL semaforo items
+  var semaforoItems = [];
+  function getInterpLevel(id) {
+    var el = document.getElementById(id);
+    if (!el || !el.classList.contains('show')) return null;
+    if (el.classList.contains('good')) return 'green';
+    if (el.classList.contains('warning')) return 'amber';
+    if (el.classList.contains('alert')) return 'red';
+    return null;
+  }
+
+  // --- MOBILITY ---
+  var dL = parseFloat(val('dorsiL')), dR = parseFloat(val('dorsiR'));
+  if (dL || dR) {
+    var dMin = Math.min(dL || 99, dR || 99);
+    var dLvl = dMin >= 12 ? 'green' : dMin >= 8 ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Movilidad de tobillo', level: dLvl, value: (dL||'-') + '° izq / ' + (dR||'-') + '° der',
+      desc: dLvl === 'green' ? 'Buen rango de movimiento en tus tobillos. Esto facilita una sentadilla segura.' : dLvl === 'amber' ? 'Tus tobillos pueden mejorar en rango de movimiento, lo que beneficiará tu sentadilla y equilibrio.' : 'Tus tobillos tienen un rango limitado. Esto puede afectar a tus rodillas y espalda al agacharte.' });
+  }
+
+  var sL = parseFloat(val('slrL')), sR = parseFloat(val('slrR'));
+  if (sL || sR) {
+    var sMin = Math.min(sL || 99, sR || 99);
+    var sLvl = sMin >= 70 ? 'green' : sMin >= 50 ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Flexibilidad posterior (piernas)', level: sLvl, value: (sL||'-') + '° izq / ' + (sR||'-') + '° der',
+      desc: sLvl === 'green' ? 'Buena flexibilidad en la parte posterior de tus piernas.' : sLvl === 'amber' ? 'La parte posterior de tus piernas puede mejorar, algo que haremos en cada sesión.' : 'La parte posterior de tus piernas está acortada. Esto puede causar molestias lumbares y limitar tus movimientos.' });
+  }
+
+  var thL = radio('thomasL'), thR = radio('thomasR');
+  if (thL || thR) {
+    var thLvl = (thL === 'positivo' || thR === 'positivo') ? 'red' : 'green';
+    var thVal = 'Izq: ' + (thL || '-') + ' / Der: ' + (thR || '-');
+    semaforoItems.push({ area: 'Flexores de cadera', level: thLvl, value: thVal,
+      desc: thLvl === 'green' ? 'Tus flexores de cadera tienen buena longitud y no están acortados.' : 'Tus flexores de cadera están acortados, algo muy común si pasas mucho tiempo sentado. Esto puede generar dolor lumbar y limitar la extensión de tu cadera.' });
+  }
+
+  var obL = radio('oberL'), obR = radio('oberR');
+  if (obL || obR) {
+    var obLvl = (obL === 'positivo' || obR === 'positivo') ? 'red' : 'green';
+    semaforoItems.push({ area: 'Banda lateral (iliotibial)', level: obLvl, value: 'Izq: ' + (obL||'-') + ' / Der: ' + (obR||'-'),
+      desc: obLvl === 'green' ? 'La banda lateral de tus piernas tiene buena elasticidad.' : 'La banda lateral de tus piernas está tensa. Esto puede causar dolor en la cara externa de la rodilla.' });
+  }
+
+  // --- HIP ---
+  var hipIRL = val('hipIRL'), hipIRR = val('hipIRR'), hipERL = val('hipERL'), hipERR = val('hipERR');
+  if (hipIRL || hipIRR) {
+    var irMin = Math.min(parseFloat(hipIRL)||99, parseFloat(hipIRR)||99);
+    var hipLvl = irMin >= 35 ? 'green' : irMin >= 25 ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Rotación de cadera', level: hipLvl, value: 'RI: ' + (hipIRL||'-') + '°/' + (hipIRR||'-') + '° | RE: ' + (hipERL||'-') + '°/' + (hipERR||'-') + '°',
+      desc: hipLvl === 'green' ? 'Tu cadera tiene buena movilidad rotacional.' : 'Tu cadera tiene limitación en la rotación. Esto puede afectar a cómo caminas, corres y te agachas.' });
+  }
+
+  // --- SHOULDER ---
+  var shFL = parseFloat(val('shoulderFlexL')), shFR = parseFloat(val('shoulderFlexR'));
+  if (shFL || shFR) {
+    var shMin = Math.min(shFL || 999, shFR || 999);
+    var shLvl = shMin >= 170 ? 'green' : shMin >= 150 ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Movilidad de hombro', level: shLvl, value: (shFL||'-') + '° izq / ' + (shFR||'-') + '° der',
+      desc: shLvl === 'green' ? 'Buena movilidad en tus hombros para levantar los brazos.' : shLvl === 'amber' ? 'Tus hombros tienen algo de limitación que mejoraremos progresivamente.' : 'La movilidad de tus hombros necesita atención. Vamos a trabajarla para que puedas moverte con más libertad.' });
+  }
+
+  var shERL = val('shoulderERL'), shERR = val('shoulderERR'), shIRL = val('shoulderIRL'), shIRR = val('shoulderIRR');
+  if (shERL || shERR || shIRL || shIRR) {
+    var erMin = Math.min(parseFloat(shERL)||99, parseFloat(shERR)||99);
+    var irShMin = Math.min(parseFloat(shIRL)||99, parseFloat(shIRR)||99);
+    var shRotLvl = (erMin >= 85 && irShMin >= 65) ? 'green' : (erMin >= 70 && irShMin >= 50) ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Rotación de hombro', level: shRotLvl, value: 'RE: ' + (shERL||'-') + '°/' + (shERR||'-') + '° | RI: ' + (shIRL||'-') + '°/' + (shIRR||'-') + '°',
+      desc: shRotLvl === 'green' ? 'Buena capacidad de rotación en tus hombros.' : 'Tus hombros tienen limitación en la rotación. Esto es importante para la salud articular del hombro.' });
+  }
+
+  var nL = radio('neerL'), nR = radio('neerR'), hwL = radio('hawkinsL'), hwR = radio('hawkinsR');
+  if (nL || nR || hwL || hwR) {
+    var impPos = (nL === 'positivo' || nR === 'positivo' || hwL === 'positivo' || hwR === 'positivo');
+    var impLvl = impPos ? 'red' : 'green';
+    semaforoItems.push({ area: 'Compresión de hombro', level: impLvl, value: impPos ? 'Positivo' : 'Negativo',
+      desc: impPos ? 'Detectamos signos de compresión en tu hombro. Adaptaremos los ejercicios para protegerlo y fortalecerlo.' : 'No hay signos de compresión en tus hombros. Buena señal.' });
+  }
+
+  // --- FUNCTIONAL ---
+  var dsq = radio('deepSquat');
+  if (dsq) {
+    var dsqLvl = dsq === 'buena' ? 'green' : dsq === 'limitada' ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Patrón de sentadilla', level: dsqLvl, value: dsq,
+      desc: dsqLvl === 'green' ? 'Tu patrón de sentadilla es correcto y funcional.' : dsqLvl === 'amber' ? 'Tu sentadilla tiene algunas limitaciones que corregiremos para que sea más eficiente y segura.' : 'Tu patrón de sentadilla necesita trabajo. Mejorar esto te protegerá la espalda y las rodillas.' });
+  }
+
+  var kv = radio('kneeValgus');
+  if (kv) {
+    var kvLvl = kv === 'no' ? 'green' : kv === 'leve' ? 'amber' : 'red';
+    semaforoItems.push({ area: 'Alineación de rodillas', level: kvLvl, value: kv === 'no' ? 'Correcta' : kv === 'leve' ? 'Leve valgo' : 'Valgo marcado',
+      desc: kvLvl === 'green' ? 'Buena alineación de rodillas durante el movimiento.' : kvLvl === 'amber' ? 'Tus rodillas tienden a irse ligeramente hacia dentro. Lo corregiremos con fortalecimiento de glúteos.' : 'Tus rodillas se van hacia dentro al moverte. Prioridad para proteger tus articulaciones.' });
+  }
+
+  // --- STRENGTH/FITNESS ---
+  var gripI = parseFloat(val('gripIzq') || val('gripL')), gripD = parseFloat(val('gripDer') || val('gripR'));
+  if (gripI || gripD) {
+    var lvl = getInterpLevel('grip-interp');
+    if (lvl) {
+      semaforoItems.push({ area: 'Fuerza de agarre', level: lvl, value: (gripI||'-') + ' kg izq / ' + (gripD||'-') + ' kg der',
+        desc: lvl === 'green' ? 'Tu fuerza de agarre es buena. Este es un indicador importante de salud general y longevidad.' : lvl === 'amber' ? 'Tu fuerza de agarre es normal pero tiene margen de mejora. La mejoraremos con el entrenamiento.' : 'Tu fuerza de agarre está por debajo de lo esperado. La fuerza de agarre se relaciona directamente con la salud general, así que mejorarla será prioritario.' });
+    }
+  }
+
+  // Respiratory
+  var respLvl = getInterpLevel('resp-interp');
+  if (respLvl) {
+    semaforoItems.push({ area: 'Respiración', level: respLvl, value: val('respMin') + ' resp/min',
+      desc: respLvl === 'green' ? 'Tu patrón respiratorio en reposo es normal y saludable.' : respLvl === 'amber' ? 'Tu respiración puede optimizarse con ejercicios específicos.' : 'Tu frecuencia respiratoria indica que debemos trabajar la respiración. Esto impacta directamente en tu energía y recuperación.' });
+  }
+
+  var apneaLvl = getInterpLevel('apnea-interp');
+  if (apneaLvl) {
+    semaforoItems.push({ area: 'Control respiratorio (BOLT)', level: apneaLvl, value: val('apnea') + ' segundos',
+      desc: apneaLvl === 'green' ? 'Aguantas cómodo sin necesidad de coger aire: buen control de la respiración.' : 'Aguantas poco antes de necesitar respirar. Esta prueba no mide tu forma física —no la predice—, pero trabajar la respiración nasal y el control del ritmo suele ayudarte a llevar mejor el esfuerzo y el estrés.' });
+  }
+
+  // Chair stand / STS (elderly)
+  var chairLvl = getInterpLevel('chair-interp');
+  if (chairLvl) {
+    semaforoItems.push({ area: 'Fuerza funcional (sentarse/levantarse)', level: chairLvl, value: val('chairStand30') + ' repeticiones en 30s',
+      desc: chairLvl === 'green' ? 'Tu fuerza funcional para levantarte y sentarte es buena para tu edad.' : 'Tu capacidad para sentarte y levantarte necesita mejora. Esto es fundamental para tu autonomía y calidad de vida.' });
+  }
+
+  var stsLvl = getInterpLevel('sts-interp');
+  if (stsLvl) {
+    semaforoItems.push({ area: 'Velocidad funcional (5x levantarse)', level: stsLvl, value: val('sitToStand5') + ' segundos',
+      desc: stsLvl === 'green' ? 'Buena velocidad y control al levantarte. No hay riesgo elevado de caídas.' : stsLvl === 'amber' ? 'Tu velocidad al levantarte es moderada. Mejorarla reducirá tu riesgo de caídas.' : 'Tu tiempo está por encima de lo recomendado. Es un patrón asociado a más riesgo de caídas, y se reduce con fuerza y equilibrio.' });
+  }
+
+  // Pain
+  var painZones = document.querySelectorAll('.pain-zone');
+  var hasPain = false;
+  var painAreas = [];
+  painZones.forEach(function(z) {
+    var zone = z.querySelector('.pain-zone-label');
+    var intensity = z.querySelector('input[type="range"]');
+    if (zone && intensity && parseInt(intensity.value) > 0) {
+      hasPain = true;
+      painAreas.push(zone.textContent.trim() + ' (' + intensity.value + '/10)');
+    }
+  });
+  if (hasPain) {
+    semaforoItems.push({ area: 'Dolor', level: 'red', value: painAreas.length + ' zona(s)',
+      desc: 'Reportas dolor en: ' + painAreas.join(', ') + '. Lo tendremos muy en cuenta para adaptar tu programa y reducirlo progresivamente.' });
+  }
+
+  /* Composicion corporal: fuera. Ya sale como medida propia (grasa estimada)
+     con su pastilla de nivel, y repetirla aqui solo es ruido. */
+
+  return semaforoItems;
+}
+
 /* ============================================================
    EXPORTAR DATOS PARA INFORME (JSON) — puente valoracion -> informe
    ============================================================ */
@@ -6763,7 +6789,7 @@ function buildInformeData() {
     /* Traccion TRX */
     var tNiv=vv('trxNivel'), tRep=nn('trxReps');
     if(tNiv && tRep!==null){
-      var etqNiv = tNiv==='60' ? '1 (60°)' : tNiv==='40' ? '2 (40°)' : '3 (40° pies elevados)';
+      var etqNiv = trxEtqNivel(tNiv);
       ef.push({metrica:'trx_remo', valor:String(tRep), unidad:'reps',
                etiqueta:'remo invertido en TRX · nivel '+etqNiv,
                nivel:'', nivelTest:tNiv, angulo:vv('trxAngulo'), talonCm:vv('trxTalon'),
@@ -6771,7 +6797,7 @@ function buildInformeData() {
     }
     if(nn('trxIso')!==null && tNiv){
       ef.push({metrica:'trx_isometrico', valor:vv('trxIso'), unidad:'s',
-               etiqueta:'isométrico de tracción en TRX · nivel '+(tNiv==='60'?'1 (60°)':'2 (40°)'),
+               etiqueta:'isométrico de tracción en TRX · nivel '+trxEtqNivel(tNiv),
                nivel:'', nivelTest:tNiv, angulo:vv('trxAngulo')});
     }
 
@@ -6954,6 +6980,20 @@ function buildInformeData() {
   } catch(e){}
   if(d.__ratiosMcGill){ interno.mcgill = d.__ratiosMcGill; delete d.__ratiosMcGill; }
   d.interno = interno;
+
+  /* Semaforo: una linea en lenguaje de cliente por cada test que se haya
+     hecho. El informe saca las de lo que no sale saludable; las verdes las
+     lista solo por el nombre. */
+  try {
+    if(typeof construirSemaforo === 'function'){
+      var sem = construirSemaforo().map(function(x){
+        return { area:x.area,
+                 nivel:(x.level==='green'?'Saludable':x.level==='amber'?'A mejorar':'A trabajar'),
+                 valor:x.value, texto:x.desc };
+      });
+      if(sem.length) d.semaforo = sem;
+    }
+  } catch(e){}
   return d;
 }
 
@@ -7479,10 +7519,22 @@ function verProto(k){
 function cerrarProto(){ document.getElementById('protoModal').style.display='none'; }
 
 /* ---------------- SEMAFOROS ---------------- */
+/* Etiqueta del nivel de TRX. Los grados se miden ABAJO, con los brazos
+   estirados: esa posicion la fija el material (largo de cinta + donde estan
+   los pies), asi que se repite igual en cada valoracion. Cuanto menor es el
+   angulo, mas horizontal esta el cuerpo y mas dificil es el remo. */
+function trxEtqNivel(n){
+  if(n==='60')   return '1 (60\u00b0)';
+  if(n==='40')   return '2 (40\u00b0)';
+  if(n==='30')   return '3 (30\u00b0)';
+  if(n==='20')   return '4 (20\u00b0)';
+  if(n==='pies') return '5 (pies elevados)';
+  return '';
+}
 function evalTRX(){
   var n=_v('trxNivel'), r=_n('trxReps');
   if(!n || r===null){ _pinta('trx-interp',''); return; }
-  var txt='Nivel '+(n==='60'?'1 (60°)': n==='40'?'2 (40°)':'3 (40° pies elevados)')+' · '+r+' repeticiones.';
+  var txt='Nivel '+trxEtqNivel(n)+' · '+r+' repeticiones.';
   if(r>15 && n!=='pies') _pinta('trx-interp', txt+' <b>Ha superado 15: toca subir de nivel.</b> Haz hoy tambien el nivel siguiente para enlazar la serie.', 'a');
   else if(r>15) _pinta('trx-interp', txt+' Ya esta en el nivel maximo del test. A partir de aqui usa el <b>isometrico</b> para seguir midiendo progreso.', 'v');
   else if(r<3) _pinta('trx-interp', txt+' Con menos de 3 repeticiones el test discrimina mal: usa tambien el <b>isometrico</b>, o baja de nivel si estabas en el 2.', 'a');
