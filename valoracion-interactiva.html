@@ -6643,6 +6643,28 @@ function buildInformeData() {
   d.objetivo = { titulo: objs.join(' + '), abordaje: abordaje, planKeys: planKeys, notas: val('informePlan') };
 
   /* ---- Biomecanica: hallazgos en lenguaje cliente (detalle por test) ---- */
+  var bioExceso = {
+    'toeTouch-interp': {
+      re: /posible exceso de movilidad/i,
+      txt: 'Al tocar los pies llegas de sobra: flexibilidad no te falta. Tanto recorrido sin control deja la articulación suelta y la espalda acaba trabajando de más. Aquí no toca estirar, toca ganar control y fuerza.'
+    },
+    'squat-interp': {
+      re: /no puede contranutar sacro\.\s*posible exceso/i,
+      txt: 'Sin peso bajas de sobra: de profundidad no te falta. Lo que vimos es que al final del recorrido se pierde la posición de la pelvis. Cuando metamos carga trabajaremos hasta donde la mantengas, y desde ahí iremos ampliando.'
+    },
+    'slr-interp': {
+      re: /posible exceso/i,
+      reLim: /(compresion pelvica|no contranutar lumbar)/i,
+      txt: 'Levantas la pierna estirada por encima de lo normal: flexibilidad no te falta. Tanto recorrido sin sujeción deja la cadera suelta y la espalda acaba frenando el movimiento. Toca fuerza y control, no estiramiento.',
+      mixto: 'Tus dos piernas no se parecen: en una te sobra recorrido y en la otra te falta. Las trabajaremos por separado —movilidad en la corta, control en la larga— hasta que se igualen.'
+    },
+    'ktc-interp': {
+      re: /exceso\.\s*verificar apt/i,
+      reLim: /(orientacion anterior|limitada\.\s*no alcanza)/i,
+      txt: 'La cadera te llega de sobra por delante: ahí no hay rigidez. Ese recorrido de más suele venir de la pelvis volcada hacia delante, que carga la zona lumbar. Trabajaremos la posición y el control.',
+      mixto: 'Tus dos caderas no se parecen: en una te sobra recorrido por delante y en la otra te falta. Las trabajaremos por separado hasta que se igualen.'
+    }
+  };
   var bioPlain = {
     'isa-interp':{zona:'Postura y respiración',
       mejorar:'Vimos margen para alinear mejor las costillas y la pelvis y mejorar tu respiración; es la base para que todo el cuerpo se mueva bien.',
@@ -6693,7 +6715,20 @@ function buildInformeData() {
     var m=bioPlain[id];
     if(lv==='green'){ green.push(m.zona); return; }
     var ordenTest={'isa-interp':0,'toeTouch-interp':10,'squat-interp':11,'slr-interp':13,'ktc-interp':14,'ober-interp':15,'shIR-interp':30,'shER-interp':31,'shFlex-interp':32};
-    biomecItems.push({ zona:m.zona, hallazgo:(lv==='red'?'Prioridad a trabajar':'A mejorar'), trabajo:(lv==='red'?m.prioridad:m.mejorar), orden:(ordenTest[id]!=null?ordenTest[id]:50) });
+    var orden = (ordenTest[id]!=null?ordenTest[id]:50);
+    var ex = bioExceso[id];
+    if(ex && ex.re.test(tec)){
+      /* "A mejorar el control" lleva la palabra mejorar a proposito: el informe
+         y el re-informe ordenan la gravedad buscandola. */
+      var hayLim = (lv==='red') || !!(ex.reLim && ex.reLim.test(tec));
+      biomecItems.push({ zona:m.zona,
+        hallazgo: hayLim ? 'Prioridad a trabajar' : 'A mejorar el control',
+        trabajo:  hayLim ? (ex.mixto || m.prioridad) : ex.txt,
+        orden: orden });
+      if(bioZonasResumen.indexOf(m.zona)<0) bioZonasResumen.push(m.zona);
+      return;
+    }
+    biomecItems.push({ zona:m.zona, hallazgo:(lv==='red'?'Prioridad a trabajar':'A mejorar'), trabajo:(lv==='red'?m.prioridad:m.mejorar), orden:orden });
     if(bioZonasResumen.indexOf(m.zona)<0) bioZonasResumen.push(m.zona);
   });
   /* Observaciones de la sentadilla (valgo, hip shift, etc.) */
@@ -6959,7 +6994,10 @@ function buildInformeData() {
   if(patRes.length) zParts.push(patRes.slice(0,3).join(', '));
   var zres = zParts.join('  ·  ');
   var efres=[];
-  if(g) efres.push('Grasa ~'+g.pct+'% ('+g.cat+')');
+  /* En el resumen de portada va solo el numero: la categoria (Sobrepeso /
+     Obesidad) se dice una vez, en su ficha, donde va acompanada de la
+     explicacion. Repetida y a secas suena a etiqueta. */
+  if(g) efres.push('Grasa ~'+g.pct+'%');
   if(val('peso')) efres.push(val('peso')+' kg');
   if(gi||gd) efres.push('Agarre '+(gi||'–')+'/'+(gd||'–')+' kg');
   var bioRes = bioZonasResumen.slice(0,3).join(', ');
@@ -7594,6 +7632,11 @@ function evalCardio(){
   var edad=_n('edad');
   if(!ritmo && fr===null){ _pinta('cardio-interp',''); return; }
   var L=[], col='v';
+  /* Con arritmia (o con betabloqueantes) la FC deja de ser un termometro
+     fiable del esfuerzo: el % del maximo y la recuperacion no se interpretan.
+     Se avisa aqui, en tu panel, no en el informe del cliente. */
+  var arr = document.querySelector('[id^="path"] input[value="fibrilacion_auricular"]:checked');
+  if(arr){ L.push('<b>Ojo: fibrilacion auricular.</b> Con el ritmo irregular, el % del maximo y la recuperacion del pulso no son fiables. Guiate por sensaciones y por el tiempo que completa, y compara solo consigo misma.'); col='a'; }
   if(fr!==null) L.push('Pulso en reposo: <b>'+fr+' lpm</b>.');
   if(ritmo){
     L.push('Ritmo '+(ritmo==='80'?'A (80 pasos/min)':'B (100 pasos/min)')+'.');
@@ -7608,7 +7651,19 @@ function evalCardio(){
         L.push('Pulso maximo del test: <b>'+fp+' lpm</b>, el <b>'+pc+' %</b> de su maximo estimado ('+fmax+' lpm).');
         if(pc<65){ L.push('<b>Se le queda corto</b>: con este ritmo casi no se estimula. Sube al ritmo B en la proxima valoracion.'); col='a'; }
         else if(pc<=85){ L.push('Intensidad <b>adecuada</b> para el test: ni se le queda corto ni se le va de las manos.'); }
-        else { L.push('<b>Intensidad alta</b> para una prueba submaxima. Si no completa los 3 minutos o acaba muy fatigado, bajalo al ritmo A.'); col='a'; }
+        else if(pc<=95){ L.push('<b>Intensidad alta</b> para una prueba submaxima. Si no completa los 3 minutos o acaba muy fatigado, bajalo al ritmo A.'); col='a'; }
+        else {
+          /* Por encima del 95% esto ya no es una prueba submaxima. Ojo: lo mas
+             probable NO es que le pase nada, sino que la formula (208-0.7*edad)
+             se le quede corta: falla facil +-10 lpm en una persona concreta.
+             Pero mientras no lo sepamos, los numeros no significan lo que
+             creemos, asi que no se sube el ritmo y se apunta el RPE. */
+          L.push(pc>100
+            ? '<b>Ha pasado de su maximo estimado.</b> Lo mas probable es que la formula se le quede corta (falla facil 10 lpm arriba o abajo), no que haya nada raro.'
+            : '<b>Casi al maximo estimado.</b> Esto ya no es una prueba submaxima.');
+          L.push('<b>No le subas el ritmo.</b> Apunta el esfuerzo percibido y como acabo: si acabo muy fatigada, bajala al ritmo A y compara solo consigo misma a partir de ahi.');
+          col='r';
+        }
       } else {
         L.push('Pulso maximo del test: <b>'+fp+' lpm</b>. Rellena la edad y te digo a que porcentaje de su maximo ha llegado.');
       }
