@@ -6853,10 +6853,14 @@ function buildInformeData() {
         ef.push({metrica:'cardio_tiempo', valor:vv('cardioTiempo'), unidad:'s',
                  etiqueta:'tiempo completado del test'+sufR, nivel: nn('cardioTiempo')>=180?'Saludable':'A mejorar'});
       }
+      if(nn('fcRec1')!==null){
+        ef.push({metrica:'fc_1min', valor:vv('fcRec1'), unidad:'lpm',
+                 etiqueta:'pulso al minuto de parar'+sufR, nivel:''});
+      }
       if(nn('fcPico')!==null && nn('fcRec1')!==null){
         var bajaFC=Math.max(0, nn('fcPico')-nn('fcRec1'));
         ef.push({metrica:'fc_recuperacion', valor:String(bajaFC), unidad:'lpm',
-                 etiqueta:'recuperación del pulso al minuto', nivel: bajaFC>=12?'Saludable':'A mejorar'});
+                 etiqueta:'recuperación del pulso al minuto'+sufR, nivel: bajaFC>=12?'Saludable':'A mejorar'});
       }
       if(nn('cardioRPE')!==null){
         ef.push({metrica:'cardio_rpe', valor:vv('cardioRPE'), unidad:'/10',
