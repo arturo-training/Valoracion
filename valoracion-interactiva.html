@@ -6860,7 +6860,7 @@ function buildInformeData() {
       if(nn('fcPico')!==null && nn('fcRec1')!==null){
         var bajaFC=Math.max(0, nn('fcPico')-nn('fcRec1'));
         ef.push({metrica:'fc_recuperacion', valor:String(bajaFC), unidad:'lpm',
-                 etiqueta:'recuperación del pulso al minuto'+sufR, nivel: bajaFC>=12?'Saludable':'A mejorar'});
+                 etiqueta:'recuperación del pulso al minuto'+sufR, nivel:''});
       }
       if(nn('cardioRPE')!==null){
         ef.push({metrica:'cardio_rpe', valor:vv('cardioRPE'), unidad:'/10',
@@ -7616,8 +7616,14 @@ function evalCardio(){
     }
     if(fp!==null && f1!==null){
       var baja=Math.max(0, fp-f1);
-      if(baja>=12) L.push('El pulso baja <b>'+baja+' lpm</b> en el primer minuto. Buena recuperacion.');
-      else { L.push('El pulso solo baja <b>'+baja+' lpm</b> en el primer minuto. Recuperacion lenta: mira la tendencia y, si se repite, que lo comente con su medico.'); col='a'; }
+      L.push('Acaba en <b>'+fp+' lpm</b> y al minuto esta en <b>'+f1+'</b>: baja <b>'+baja+' lpm</b>.');
+      /* Referencia orientativa, no diagnostico: las 18 lpm salen de pruebas
+         maximas en cinta con recuperacion sentado, no de este test submaximo.
+         Sirve para saber hacia donde tirar; la comparacion buena es contra
+         su propia valoracion anterior. */
+      if(baja>=18) L.push('Por encima de la referencia orientativa de <b>18 lpm</b>. Compara sobre todo con su valoracion anterior.');
+      else if(baja>=10) L.push('Por debajo de la referencia orientativa de <b>18 lpm</b>. No es un problema por si solo: lo que cuenta es que suba respecto a su propia marca.');
+      else { L.push('Baja poco (referencia orientativa: <b>18 lpm</b>). Un dato aislado no dice nada; si se repite en la siguiente valoracion, merece que lo comente con su medico.'); col='a'; }
     }
     if(rpe!==null) L.push('Esfuerzo percibido: <b>'+rpe+'/10</b>.');
   }
