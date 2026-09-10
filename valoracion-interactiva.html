@@ -972,7 +972,7 @@ select:focus, input:focus, textarea:focus {
       <div class="patho-category-title">Rodilla</div>
       <div class="checkbox-group" id="pathRodilla">
         <label onclick="toggleCheck(this)"><input type="checkbox" value="condromalacia"> Condromalacia rotuliana</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="menisco"> Meniscopatia</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="menisco"> Meniscopatía</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_rotuliana"> Tendinopatía rotuliana</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="gonartrosis"> Gonartrosis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="cintilla_iliotibial"> Síndrome cintilla iliotibial</label>
@@ -994,7 +994,7 @@ select:focus, input:focus, textarea:focus {
         <label onclick="toggleCheck(this)"><input type="checkbox" value="espondilosis"> Espondilosis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="dorsalgia"> Dorsalgia</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="escoliosis"> Escoliosis</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="hipercifosis"> Hipercifosis / Postura cifotica</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="hipercifosis"> Hipercifosis / Postura cifótica</label>
       </div>
     </div>
     <div class="patho-category">
@@ -1011,7 +1011,7 @@ select:focus, input:focus, textarea:focus {
       <div class="patho-category-title">Cadera</div>
       <div class="checkbox-group" id="pathCadera">
         <label onclick="toggleCheck(this)"><input type="checkbox" value="artrosis_cadera"> Artrosis de cadera</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="bursitis_trocanterica"> Bursitis trocanterica</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="bursitis_trocanterica"> Bursitis trocantérica</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="impingement_femoroac"> Impingement femoroacetabular</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_glutea"> Tendinopatía glutea</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="piriforme"> Síndrome piriforme</label>
@@ -1035,7 +1035,7 @@ select:focus, input:focus, textarea:focus {
         <label onclick="toggleCheck(this)"><input type="checkbox" value="epitrocleitis"> Epitrocleitis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="sindrome_tunel_carpiano"> S. túnel carpiano</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="pubalgia"> Pubalgia</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="sacroileitis"> Sacroileitis</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="sacroileitis"> Sacroileítis</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="tendinopatia_isquiotibial"> Tendinopatía isquiotibial</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="latigazo_cervical"> Latigazo cervical</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="diastasis_rectos"> Diastasis de rectos</label>
@@ -1058,7 +1058,7 @@ select:focus, input:focus, textarea:focus {
         <label onclick="toggleCheck(this)"><input type="checkbox" value="asma"> Asma</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="epoc"> EPOC</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="insuficiencia_cardiaca"> Insuficiencia cardiaca</label>
-        <label onclick="toggleCheck(this)"><input type="checkbox" value="cardiopatia_isquemica"> Cardiopatia isquemica / post-infarto</label>
+        <label onclick="toggleCheck(this)"><input type="checkbox" value="cardiopatia_isquemica"> Cardiopatía isquémica / post-infarto</label>
         <label onclick="toggleCheck(this)"><input type="checkbox" value="fibrilacion_auricular"> Fibrilación auricular</label>
       </div>
     </div>
@@ -6532,7 +6532,7 @@ function construirSemaforo(){
     var lvl = getInterpLevel('grip-interp');
     if (lvl) {
       semaforoItems.push({ area: 'Fuerza de agarre', level: lvl, value: (gripI||'-') + ' kg izq / ' + (gripD||'-') + ' kg der',
-        desc: lvl === 'green' ? 'Tu fuerza de agarre es buena. Este es un indicador importante de salud general y longevidad.' : lvl === 'amber' ? 'Tu fuerza de agarre es normal pero tiene margen de mejora. La mejoraremos con el entrenamiento.' : 'Tu fuerza de agarre está por debajo de lo esperado. La fuerza de agarre se relaciona directamente con la salud general, así que mejorarla será prioritario.' });
+        desc: lvl === 'green' ? 'Tu fuerza de agarre es buena. Este es un indicador importante de salud general y longevidad.' : lvl === 'amber' ? 'Tu fuerza de agarre está en la media, pero tiene margen. Es un buen espejo de tu fuerza general: cuando sube, suele subir todo lo demás.' : 'Tu fuerza de agarre está por debajo de lo esperado. La fuerza de agarre se relaciona directamente con la salud general, así que mejorarla será prioritario.' });
     }
   }
 
@@ -6540,7 +6540,7 @@ function construirSemaforo(){
   var respLvl = getInterpLevel('resp-interp');
   if (respLvl) {
     semaforoItems.push({ area: 'Respiración', level: respLvl, value: val('respMin') + ' resp/min',
-      desc: respLvl === 'green' ? 'Tu patrón respiratorio en reposo es normal y saludable.' : respLvl === 'amber' ? 'Tu respiración puede optimizarse con ejercicios específicos.' : 'Tu frecuencia respiratoria indica que debemos trabajar la respiración. Esto impacta directamente en tu energía y recuperación.' });
+      desc: respLvl === 'green' ? 'Tu patrón respiratorio en reposo es normal y saludable.' : respLvl === 'amber' ? 'Tu respiración en reposo tiene margen. Respirar más despacio y por la nariz te ayuda a llevar mejor el esfuerzo y a bajar el estrés.' : 'Tu frecuencia respiratoria indica que debemos trabajar la respiración. Esto impacta directamente en tu energía y recuperación.' });
   }
 
   var apneaLvl = getInterpLevel('apnea-interp');
@@ -6671,28 +6671,28 @@ function buildInformeData() {
       prioridad:'La alineación de tu tronco y la respiración serán una prioridad: es la base de todo lo demás.'},
     'toeTouch-interp':{zona:'Flexibilidad al tocar los pies',
       mejorar:'Al agacharte a tocar los pies vimos rigidez en la parte de atrás del cuerpo; la mejoraremos con movilidad y control.',
-      prioridad:'Bastante rigidez al intentar tocar los pies; será un foco de trabajo.'},
+      prioridad:'Bastante rigidez al agacharte a tocar los pies. Es prioridad porque, si no llega la cadera, quien acaba doblándose es la espalda baja.'},
     'squat-interp':{zona:'Sentadilla profunda',
       mejorar:'No llegas del todo a una sentadilla profunda cómoda; trabajaremos movilidad de cadera y tobillo para ganar rango.',
-      prioridad:'Te cuesta bajar en sentadilla; será un foco, ganando movilidad de cadera y tobillo.'},
+      prioridad:'Te cuesta bajar en sentadilla. Es prioridad porque agacharte es un gesto diario, y si no baja la cadera lo pagan la rodilla y la espalda.'},
     'slr-interp':{zona:'Elevación de la pierna estirada',
       mejorar:'Vimos algo de rigidez al elevar la pierna estirada (parte posterior del muslo); la mejoraremos.',
-      prioridad:'Bastante rigidez al elevar la pierna estirada; punto a trabajar.'},
+      prioridad:'Bastante rigidez al elevar la pierna estirada. Es prioridad porque condiciona cómo te agachas y cuánto trabajo acaba haciendo tu espalda.'},
     'ktc-interp':{zona:'Flexibilidad del flexor de la cadera',
       mejorar:'La parte delantera de la cadera está algo rígida; la soltaremos con movilidad específica.',
-      prioridad:'El flexor de la cadera está bastante rígido; foco de trabajo.'},
+      prioridad:'El flexor de la cadera está bastante rígido. Es prioridad porque tira de la pelvis hacia delante y acaba cargando la zona lumbar.'},
     'ober-interp':{zona:'Movilidad lateral de la cadera',
       mejorar:'El lateral de la cadera está algo rígido; lo mejoraremos.',
-      prioridad:'El lateral de la cadera está limitado; foco de trabajo.'},
+      prioridad:'El lateral de la cadera está limitado. Es prioridad porque si la cadera no se abre a los lados, compensan la rodilla y la espalda.'},
     'shIR-interp':{zona:'Rotación interna del hombro',
       mejorar:'La rotación del hombro hacia dentro está algo limitada; la mejoraremos con movilidad y control.',
-      prioridad:'La rotación interna del hombro está limitada; foco de trabajo.'},
+      prioridad:'La rotación interna del hombro está limitada. Es prioridad porque sin ese recorrido el hombro fuerza al levantar peso por encima.'},
     'shER-interp':{zona:'Rotación externa del hombro',
       mejorar:'La rotación del hombro hacia fuera está algo limitada; la mejoraremos con movilidad y control.',
-      prioridad:'La rotación externa del hombro está limitada; foco de trabajo.'},
+      prioridad:'La rotación externa del hombro está limitada. Es prioridad porque es el recorrido que necesitas para empujar sin cargar el cuello.'},
     'shFlex-interp':{zona:'Elevación del brazo por encima de la cabeza',
       mejorar:'Al subir el brazo por encima de la cabeza vimos algo de limitación; la mejoraremos.',
-      prioridad:'Limitación al subir el brazo por encima de la cabeza; foco de trabajo.'}
+      prioridad:'Limitación al subir el brazo por encima de la cabeza. Es prioridad porque es un gesto diario y ahora lo resuelves con la espalda.'}
   };
   var interpTecLabels = {
     'isa-interp':'Postura y alineación (ISA)','toeTouch-interp':'Toe Touch','squat-interp':'Sentadilla profunda',
